@@ -119,6 +119,25 @@
                 >{{ $form.phone.error.message }}</Message
               >
             </div>
+
+            <div class="flex flex-col gap-1">
+              <Select
+                name="state"
+                :options="zrExpress"
+                fluid
+                optionLabel="wilaya"
+                size="large"
+                placeholder="الولاية"
+              />
+              <Message
+                v-if="$form.state?.invalid"
+                severity="error"
+                size="small"
+                variant="simple"
+                >{{ $form.state.error.message }}</Message
+              >
+            </div>
+
             <div class="flex flex-col gap-1">
               <FloatLabel variant="in">
                 <InputText
@@ -138,24 +157,6 @@
                 size="small"
                 variant="simple"
                 >{{ $form.address.error.message }}</Message
-              >
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <Select
-                name="state"
-                :options="zrExpress"
-                fluid
-                optionLabel="wilaya"
-                size="large"
-                placeholder="الولاية"
-              />
-              <Message
-                v-if="$form.state?.invalid"
-                severity="error"
-                size="small"
-                variant="simple"
-                >{{ $form.state.error.message }}</Message
               >
             </div>
 
@@ -199,38 +200,112 @@
             <div class="flex flex-col gap-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <RadioButton
-                    v-model="delivery"
-                    inputId="home"
-                    name="delivery"
-                    value="home"
-                  />
+                  <RadioButton inputId="home" name="delivery" value="home" />
                   <label for="home" class="text-lg">🏠 توصيل الى المنزل</label>
                 </div>
-                <span>{{ currencyFormat($form.state?.value?.home) }}</span>
+                <span class="font-bold">{{
+                  currencyFormat($form.state?.value?.home)
+                }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <RadioButton
-                    v-model="delivery"
-                    inputId="point"
-                    name="delivery"
-                    value="point"
-                  />
+                  <RadioButton inputId="point" name="delivery" value="point" />
                   <label for="point" class="text-lg"
                     >📍 توصيل الى نقطة <br class="hidden md:block" />
                     (ZR Express)</label
                   >
                 </div>
-                <span>{{ currencyFormat($form.state?.value?.point) }}</span>
+                <span class="font-bold">{{
+                  currencyFormat($form.state?.value?.point)
+                }}</span>
               </div>
             </div>
           </div>
 
-          <Button type="submit" severity="success" label="اشتري الآن" />
+          <div
+            class="bg-gray-50! p-6! rounded-lg! shadow-md!"
+            v-if="
+              $form.state?.value &&
+              $form.quantity?.value &&
+              $form.delivery?.value
+            "
+          >
+            <div class="flex items-center justify-between">
+              <h3 class="flex items-center gap-2 text-lg">
+                <i class="pi pi-tag text-xl!"></i>
+                سعر المنتج
+              </h3>
+              <span class="font-bold">
+                {{
+                  product.hasDiscount
+                    ? currencyFormat(
+                        product.discountPrice! * $form.quantity.value
+                      )
+                    : currencyFormat(product.price * $form.quantity.value)
+                }}
+              </span>
+            </div>
+            <Divider class="bg-gray-200!" />
+            <div class="flex items-center justify-between">
+              <h3 class="flex items-center gap-2 text-lg">
+                <i class="pi pi-truck text-xl!"></i>
+                سعر التوصيل
+              </h3>
+              <span class="font-bold">
+                {{
+                  $form.delivery.value === "home"
+                    ? currencyFormat($form.state?.value?.home)
+                    : currencyFormat($form.state?.value?.point)
+                }}
+              </span>
+            </div>
+            <Divider class="bg-gray-200!" />
+            <div class="flex items-center justify-between">
+              <h3 class="flex items-center gap-2 text-lg">
+                <i class="pi pi-tag text-xl!"></i>
+                إجمالي
+              </h3>
+              <span class="font-bold">
+                {{ currencyFormat(getTotalPrice(product, $form)) }}
+              </span>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            severity="success"
+            label="اشتري الآن"
+            size="large"
+          />
+          <Button
+            label="اضف للسلة"
+            variant="outlined"
+            size="large"
+            @click="addToCart(product, $form)"
+          />
         </Form>
       </div>
     </div>
+    <Dialog
+      v-model:visible="visible"
+      modal
+      :closable="false"
+      :style="{ width: '25rem' }"
+    >
+      <div class="flex flex-col gap-4 items-center">
+        <Image :src="check" alt="Check" width="150" height="150" />
+        <h3 class="text-2xl font-bold">تم عملية الشراء بنجاح</h3>
+        <p class="text-lg">شكراً لاستخدامك متجرنا</p>
+        <Button
+          type="button"
+          label="اغلاق"
+          severity="secondary"
+          @click="visible = false"
+        />
+      </div>
+    </Dialog>
+
+    <Toast />
   </div>
 </template>
 
@@ -238,12 +313,15 @@
 import { defineComponent } from "vue";
 
 import { useStoreProduct } from "@/store/product";
+import { useCartStore } from "@/store/cart";
 import { currencyFormat } from "@/utilities/currencyFormat";
 import type { Product } from "@/types/Product";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { checkoutSchema } from "@/schemas/checkout.schema";
-import { Form } from "@primevue/forms";
+import { Form, type FormSubmitEvent } from "@primevue/forms";
 import zrExpress from "@/zr-express.json";
+
+import check from "@/assets/images/check.png";
 
 export default defineComponent({
   name: "Product",
@@ -267,13 +345,12 @@ export default defineComponent({
         address: "",
         state: null,
         quantity: 1,
+        delivery: "home" as "home" | "point",
       },
 
-      quantity: 1,
+      selectedColor: 0 as number,
 
-      delivery: "home",
-
-      selectedColor: 0,
+      visible: false,
 
       responsiveOptions: [
         {
@@ -288,25 +365,55 @@ export default defineComponent({
           breakpoint: "425px",
           numVisible: 2,
         },
-      ],
+      ] as {
+        breakpoint: string;
+        numVisible: number;
+      }[],
 
       resolver: zodResolver(checkoutSchema),
     };
   },
 
   methods: {
-    onFormSubmit(values: any) {
-      console.log(values);
+    onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
+      if (valid) {
+        console.log(states);
+
+        this.visible = true;
+        reset();
+      }
+    },
+
+    getTotalPrice(product: Product, form: any) {
+      return (
+        (product.hasDiscount ? product.discountPrice! : product.price) *
+          form.quantity.value +
+          (form.delivery.value === "home"
+            ? form.state?.value?.home
+            : form.state?.value?.point) || 0
+      );
+    },
+
+    addToCart(product: Product, form: any) {
+      this.storeCart.addToCart({
+        ...product,
+        quantity: form.quantity.value,
+        colorId: this.selectedColor,
+      });
     },
   },
 
   setup() {
     const storeProduct = useStoreProduct();
+    const storeCart = useCartStore();
 
     return {
       storeProduct,
+      storeCart,
       currencyFormat,
       zrExpress,
+
+      check,
     };
   },
 

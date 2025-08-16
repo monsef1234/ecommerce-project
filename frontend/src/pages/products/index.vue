@@ -17,7 +17,7 @@
       variant="outlined"
       class="flex! mx-auto! mb-10 hover:bg-black! hover:text-white! disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent! disabled:hover:text-black!"
       @click="loadMore"
-      :disabled="limit >= storeProduct.products.length"
+      :disabled="limit >= storeProduct.products.length || loading"
       :loading="loading"
     />
   </div>

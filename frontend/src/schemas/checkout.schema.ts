@@ -21,3 +21,5 @@ export const checkoutSchema = z.object({
     .nullable()
     .refine((val) => val !== null, { message: "الولاية مطلوبة." }),
 });
+
+// export type CheckoutSchema = z.infer<typeof checkoutSchema>;

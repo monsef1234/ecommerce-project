@@ -1,6 +1,6 @@
 <template>
   <header
-    class="p-4 fixed top-0 left-0 z-[1103] shadow-[0_2px_10px_0_rgba(0,0,0,.1)] w-full bg-white flex justify-between items-center"
+    class="p-4 fixed top-0 left-0 z-[10] shadow-[0_2px_10px_0_rgba(0,0,0,.1)] w-full bg-white flex justify-between items-center"
   >
     <Button
       class="bg-transparent! border-none!"
@@ -8,8 +8,11 @@
       @click="drawer = !drawer"
     >
       <template #icon>
-        <i class="pi pi-bars text-black text-2xl!" v-if="!drawer"></i>
-        <i class="pi pi-times text-black text-2xl!" v-else></i>
+        <i
+          class="pi pi-bars text-black text-2xl! md:text-3xl!"
+          v-if="!drawer"
+        ></i>
+        <i class="pi pi-times text-black text-2xl! md:text-3xl!" v-else></i>
       </template>
     </Button>
 
@@ -17,13 +20,17 @@
       <Image :src="logo" alt="Logo" width="120" />
     </router-link>
 
-    <router-link to="/cart" @click="drawer = false">
-      <Button class="bg-transparent! border-none!" aria-label="Cart">
-        <template #icon>
-          <i class="pi pi-shopping-cart text-black text-2xl!"></i>
-        </template>
-      </Button>
-    </router-link>
+    <OverlayBadge :value="storeCart.cart.length">
+      <router-link to="/cart" @click="drawer = false">
+        <Button class="bg-transparent! border-none! p-0!" aria-label="Cart">
+          <template #icon>
+            <i
+              class="pi pi-shopping-cart text-black text-2xl! md:text-3xl!"
+            ></i>
+          </template>
+        </Button>
+      </router-link>
+    </OverlayBadge>
 
     <Drawer
       v-model:visible="drawer"
@@ -48,6 +55,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
+import { useCartStore } from "@/store/cart";
 
 import logo from "@/assets/images/logo.avif";
 
@@ -77,7 +86,11 @@ export default defineComponent({
   },
 
   setup() {
+    const storeCart = useCartStore();
+
     return {
+      storeCart,
+
       logo,
     };
   },
