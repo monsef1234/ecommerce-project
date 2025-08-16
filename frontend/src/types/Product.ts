@@ -4,6 +4,12 @@ interface Image {
   isMain: boolean;
 }
 
+export interface Color {
+  id: number;
+  name: string;
+  code: string;
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -11,5 +17,6 @@ export interface Product {
   hasDiscount: boolean;
   discountPrice?: number;
   description: string;
+  colors: Color[];
   images: Image[];
 }

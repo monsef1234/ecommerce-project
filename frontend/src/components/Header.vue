@@ -1,6 +1,6 @@
 <template>
   <header
-    class="p-4 fixed top-0 left-0 z-[1102] shadow-[0_2px_10px_0_rgba(0,0,0,.1)] w-full bg-white flex justify-between items-center"
+    class="p-4 fixed top-0 left-0 z-[1103] shadow-[0_2px_10px_0_rgba(0,0,0,.1)] w-full bg-white flex justify-between items-center"
   >
     <Button
       class="bg-transparent! border-none!"

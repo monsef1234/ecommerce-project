@@ -6,3 +6,8 @@
     @apply mx-auto max-w-7xl;
   }
 }
+
+.p-galleria-thumbnail {
+  display: flex !important;
+  gap: 2rem !important;
+}

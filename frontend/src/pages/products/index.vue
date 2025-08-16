@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-2xl text-center font-bold">احدث المنتوجات</h1>
+    <h1 class="text-2xl text-center font-bold">جميع المنتوجات</h1>
     <div
       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-10 mb-6"
     >
