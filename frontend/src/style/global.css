@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+
+@layer utilities {
+  .container {
+    @apply mx-auto max-w-7xl;
+  }
+}
