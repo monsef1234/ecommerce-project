@@ -66,6 +66,7 @@
 
         <Form
           dir="rtl"
+          ref="form"
           v-slot="$form"
           :initialValues
           :resolver="resolver"
@@ -128,6 +129,7 @@
                 optionLabel="wilaya"
                 size="large"
                 placeholder="الولاية"
+                scrollHeight="18rem"
               />
               <Message
                 v-if="$form.state?.invalid"
@@ -381,6 +383,17 @@ export default defineComponent({
 
         this.visible = true;
         reset();
+      } else {
+        const formRef = this.$refs.form as {
+          $el: HTMLElement;
+        };
+        const top =
+          formRef.$el.getBoundingClientRect().top + window.scrollY - 100;
+
+        window.scrollTo({
+          top,
+          behavior: "smooth",
+        });
       }
     },
 

@@ -16,5 +16,29 @@ export const useCartStore = defineStore("cart", {
         this.cart.push(product);
       }
     },
+
+    removeProduct(product: CartProduct) {
+      this.cart = this.cart.filter((p) => p.id !== product.id);
+    },
+
+    getTotalPriceOneProduct(product: CartProduct) {
+      return (
+        (product.hasDiscount ? product.discountPrice! : product.price) *
+        product.quantity
+      );
+    },
+
+    getTotalPrice() {
+      return this.cart.reduce(
+        (total, product) => total + this.getTotalPriceOneProduct(product),
+        0
+      );
+    },
+  },
+
+  getters: {
+    reset(state) {
+      return (state.cart = []);
+    },
   },
 });
