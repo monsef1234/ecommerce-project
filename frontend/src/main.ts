@@ -44,7 +44,7 @@ const BlackWhitePreset = definePreset(Aura, {
           600: "#737373",
           700: "#595959",
           800: "#404040",
-          900: "#000000", // text color on light
+          900: "#000000",
         },
       },
       //   dark: {

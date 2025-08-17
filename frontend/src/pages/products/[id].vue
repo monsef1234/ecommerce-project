@@ -307,14 +307,14 @@
       </div>
     </Dialog>
 
-    <Toast />
+    <Toast position="bottom-center" class="toast-parent" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import { useStoreProduct } from "@/store/product";
+import { useProductStore } from "@/store/product";
 import { useCartStore } from "@/store/cart";
 import { currencyFormat } from "@/utilities/currencyFormat";
 import type { Product } from "@/types/Product";
@@ -413,11 +413,17 @@ export default defineComponent({
         quantity: form.quantity.value,
         colorId: this.selectedColor,
       });
+
+      this.$toast.add({
+        detail: "تم اضافة المنتج للسلة",
+        styleClass: "toast",
+        life: 2500,
+      });
     },
   },
 
   setup() {
-    const storeProduct = useStoreProduct();
+    const storeProduct = useProductStore();
     const storeCart = useCartStore();
 
     return {

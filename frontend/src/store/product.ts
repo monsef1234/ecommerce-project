@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Product } from "@/types/Product";
 
-export const useStoreProduct = defineStore("product", {
+export const useProductStore = defineStore("product", {
   state: () => ({
     products: [
       {

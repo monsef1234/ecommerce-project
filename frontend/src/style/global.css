@@ -7,7 +7,48 @@
   }
 }
 
+.p-drawer-header {
+  justify-content: end;
+}
+
 .p-galleria-thumbnail {
   display: flex !important;
   gap: 2rem !important;
+}
+
+.toast {
+  background-color: #16a34a !important;
+  border: none !important;
+  color: white !important;
+}
+
+.toast .p-toast-detail {
+  color: white !important;
+  font-size: 1rem !important;
+}
+
+.toast .p-toast-message-text {
+  gap: unset !important;
+}
+
+.toast .p-toast-message-content {
+  padding: 16px !important;
+}
+
+@media screen and (max-width: 490px) {
+  .toast {
+    width: 300px !important;
+  }
+}
+
+@media screen and (max-width: 490px) {
+  .toast-parent {
+    left: 60% !important;
+  }
+}
+
+@media screen and (max-width: 430px) {
+  .toast-parent {
+    left: 65% !important;
+  }
 }

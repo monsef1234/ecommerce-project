@@ -26,7 +26,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Product from "@/components/Product.vue";
-import { useStoreProduct } from "@/store/product";
+import { useProductStore } from "@/store/product";
 
 export default defineComponent({
   name: "Products",
@@ -49,7 +49,7 @@ export default defineComponent({
   },
 
   setup() {
-    const storeProduct = useStoreProduct();
+    const storeProduct = useProductStore();
 
     return {
       storeProduct,

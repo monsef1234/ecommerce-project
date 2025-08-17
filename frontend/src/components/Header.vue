@@ -8,11 +8,7 @@
       @click="drawer = !drawer"
     >
       <template #icon>
-        <i
-          class="pi pi-bars text-black text-2xl! md:text-3xl!"
-          v-if="!drawer"
-        ></i>
-        <i class="pi pi-times text-black text-2xl! md:text-3xl!" v-else></i>
+        <i class="pi pi-bars text-black text-2xl! md:text-3xl!"></i>
       </template>
     </Button>
 
@@ -35,8 +31,8 @@
     <Drawer
       v-model:visible="drawer"
       position="left"
-      :show-close-icon="false"
-      class="mt-40 w-[250px]! md:w-[25vw]!"
+      :show-close-icon="true"
+      class="w-[250px]! md:w-[25vw]!"
     >
       <ul class="flex flex-col gap-4">
         <li v-for="link in links" :key="link.name" class="text-lg">
