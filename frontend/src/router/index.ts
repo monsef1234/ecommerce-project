@@ -17,25 +17,11 @@ router.beforeEach((to, from, next) => {
   if (
     to.meta.layout === "dashboard" &&
     !authStore.user &&
-    normalize(to.path) !== "/admin/login"
+    normalize(to.path) !== "/login"
   ) {
-    next("/admin/login");
-  } else if (authStore.user && normalize(to.path) === "/admin/login") {
-    next("/admin/dashboard");
-  } else {
-    next();
-  }
-});
-
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-
-  if (normalize(to.path) === "/admin") {
-    if (!authStore.user) {
-      next("/admin/login");
-    } else {
-      next("/admin/dashboard");
-    }
+    next("/login");
+  } else if (authStore.user && normalize(to.path) === "/login") {
+    next("/dashboard");
   } else {
     next();
   }

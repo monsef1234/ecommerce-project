@@ -60,7 +60,7 @@
 import { defineComponent } from "vue";
 import { Form, type FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { loginSchema } from "@/schemas/login-schema";
+import { loginSchema } from "@/schemas/login.schema";
 import { useAuthStore } from "@/store/auth";
 
 export default defineComponent({
@@ -81,7 +81,7 @@ export default defineComponent({
         console.log(states);
 
         this.authStore.setUser(states);
-        this.$router.push("/admin/dashboard");
+        this.$router.push("/dashboard");
       }
     },
   },

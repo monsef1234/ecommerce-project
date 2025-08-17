@@ -7,6 +7,11 @@
   }
 }
 
+.p-paginator {
+  --p-paginator-nav-button-selected-background: black;
+  --p-paginator-nav-button-selected-color: white;
+}
+
 .p-drawer-header {
   justify-content: end;
 }
