@@ -23,7 +23,7 @@ export const useCartStore = defineStore("cart", {
 
     getTotalPriceOneProduct(product: CartProduct) {
       return (
-        (product.hasDiscount ? product.discountPrice! : product.price) *
+        (product.hasDiscount ? Number(product.discountPrice!) : Number(product.price)) *
         product.quantity
       );
     },

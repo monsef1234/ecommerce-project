@@ -2,7 +2,7 @@
   <h1 class="text-2xl font-bold mb-6">Products</h1>
 
   <DataTable
-    :value="products"
+    :value="storeProduct.products"
     paginator
     :rows="5"
     :rowsPerPageOptions="[5, 10, 15, 20]"
@@ -23,11 +23,6 @@
         {{ slotProps.data.title }}
       </template>
     </Column>
-    <Column field="price" header="Price" sortable>
-      <template #body="slotProps">
-        {{ currencyFormat(slotProps.data.price) }}
-      </template>
-    </Column>
     <Column field="colors" header="Colors">
       <template #body="slotProps">
         <div class="flex gap-2 flex-wrap">
@@ -43,6 +38,13 @@
         </div>
       </template>
     </Column>
+    <Column field="price" header="Price" sortable>
+      <template #body="slotProps">
+        <span class="font-bold">{{
+          currencyFormat(slotProps.data.price)
+        }}</span>
+      </template>
+    </Column>
     <Column field="hasDiscount" header="Discount" sortable>
       <template #body="slotProps">
         <Tag
@@ -53,11 +55,10 @@
     </Column>
     <Column field="discountPrice" header="Discount Price" sortable>
       <template #body="slotProps">
-        {{
-          slotProps.data.hasDiscount
-            ? currencyFormat(slotProps.data.discountPrice)
-            : ""
-        }}
+        <span v-if="slotProps.data.hasDiscount" class="font-bold">{{
+          currencyFormat(slotProps.data.discountPrice)
+        }}</span>
+        <span v-else class="font-bold text-lg"> - </span>
       </template>
     </Column>
     <Column field="actions" header="Actions">
@@ -81,67 +82,15 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+
 import type { Product } from "@/types/Product";
 import { currencyFormat } from "@/utilities/currencyFormat";
 import { format } from "date-fns";
-import { defineComponent } from "vue";
+import { useProductStore } from "@/store/product";
 
 export default defineComponent({
   name: "DashboardProducts",
-
-  data() {
-    return {
-      products: [
-        {
-          id: 1,
-          images: [
-            {
-              id: 1,
-              url: "https://assets.realmadrid.com/is/image/realmadrid/GONZALO_380x501?$Desktop$&fit=wrap&wid=288&hei=384",
-              isMain: true,
-            },
-          ],
-          title: "Product 1",
-          price: 100,
-          hasDiscount: true,
-          discountPrice: 80,
-          description: "Description",
-          colors: [
-            {
-              id: 1,
-              name: "Red",
-              code: "#FF0000",
-            },
-            {
-              id: 2,
-              name: "Green",
-              code: "#00FF00",
-            },
-            {
-              id: 3,
-              name: "Blue",
-              code: "#0000FF",
-            },
-            {
-              id: 4,
-              name: "Yellow",
-              code: "#FFFF00",
-            },
-            {
-              id: 5,
-              name: "Black",
-              code: "#000000",
-            },
-            {
-              id: 6,
-              name: "White",
-              code: "#FFFFFF",
-            },
-          ],
-        },
-      ] as Product[],
-    };
-  },
 
   methods: {
     getContrastColor(hex: string) {
@@ -160,7 +109,10 @@ export default defineComponent({
   },
 
   setup() {
+    const storeProduct = useProductStore();
+
     return {
+      storeProduct,
       currencyFormat,
       format,
     };

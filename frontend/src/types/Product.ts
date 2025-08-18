@@ -13,9 +13,9 @@ export interface Color {
 export interface Product {
   id: number;
   title: string;
-  price: number;
+  price: string;
   hasDiscount: boolean;
-  discountPrice?: number;
+  discountPrice?: string;
   description: string;
   colors: Color[];
   images: Image[];

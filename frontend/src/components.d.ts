@@ -20,6 +20,7 @@ declare module 'vue' {
     Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
     Drawer: typeof import('primevue/drawer')['default']
+    FileUpload: typeof import('primevue/fileupload')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     Form: typeof import('@primevue/forms/form')['default']
@@ -39,6 +40,7 @@ declare module 'vue' {
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('primevue/sidebar')['default']
     Tag: typeof import('primevue/tag')['default']
+    Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
   }

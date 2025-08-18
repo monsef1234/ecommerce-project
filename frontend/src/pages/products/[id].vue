@@ -25,17 +25,17 @@
           {{ product?.title }}
         </h1>
         <p class="text-2xl font-bold mb-6" v-if="!product.hasDiscount">
-          {{ currencyFormat(product.price) }}
+          {{ currencyFormat(Number(product.price)) }}
         </p>
         <div
           v-if="product.hasDiscount"
           class="flex items-center gap-4 flex-wrap mb-6"
         >
           <p class="text-2xl font-bold line-through text-gray-500">
-            {{ currencyFormat(product.price) }}
+            {{ currencyFormat(Number(product.price)) }}
           </p>
           <p class="text-2xl font-bold text-green-500">
-            {{ currencyFormat(product.discountPrice!) }}
+            {{ currencyFormat(Number(product.discountPrice!)) }}
           </p>
         </div>
         <div class="flex items-center gap-4 flex-wrap mb-6">
@@ -241,9 +241,11 @@
                 {{
                   product.hasDiscount
                     ? currencyFormat(
-                        product.discountPrice! * $form.quantity.value
+                        Number(product.discountPrice!) * $form.quantity.value
                       )
-                    : currencyFormat(product.price * $form.quantity.value)
+                    : currencyFormat(
+                        Number(product.price) * $form.quantity.value
+                      )
                 }}
               </span>
             </div>
@@ -333,9 +335,9 @@ export default defineComponent({
       product: {
         id: 0,
         title: "",
-        price: 0,
+        price: "",
         hasDiscount: false,
-        discountPrice: 0,
+        discountPrice: "",
         description: "",
         images: [],
         colors: [],
@@ -399,11 +401,13 @@ export default defineComponent({
 
     getTotalPrice(product: Product, form: any) {
       return (
-        (product.hasDiscount ? product.discountPrice! : product.price) *
+        (product.hasDiscount
+          ? Number(product.discountPrice!)
+          : Number(product.price)) *
           form.quantity.value +
           (form.delivery.value === "home"
-            ? form.state?.value?.home
-            : form.state?.value?.point) || 0
+            ? Number(form.state?.value?.home)
+            : Number(form.state?.value?.point)) || 0
       );
     },
 

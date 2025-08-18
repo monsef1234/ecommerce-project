@@ -7,9 +7,9 @@ export const useProductStore = defineStore("product", {
       {
         id: 1,
         title: "Prodsd,dsl,lsdn,flksdnflskd uct 1",
-        price: 100000,
+        price: "100000",
         hasDiscount: true,
-        discountPrice: 80000,
+        discountPrice: "80000",
         description: `🔥 عرض خاص – كاسك P9 + AirPods Pro 2 🔥
 
 🎧 استمتع بأفضل تجربة صوت مع باك مميز يجمع بين:
@@ -70,39 +70,14 @@ export const useProductStore = defineStore("product", {
             url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
             isMain: true,
           },
-          {
-            id: 2,
-            url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-            isMain: false,
-          },
-          {
-            id: 3,
-            url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-            isMain: false,
-          },
-          {
-            id: 4,
-            url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-            isMain: false,
-          },
-          {
-            id: 5,
-            url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-            isMain: false,
-          },
-          {
-            id: 6,
-            url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-            isMain: false,
-          },
         ],
       },
       {
         id: 2,
         title: "Product 2",
-        price: 2000000,
+        price: "2000000",
         hasDiscount: true,
-        discountPrice: 150000,
+        discountPrice: "150000",
         description: "Product 2 description",
         colors: [
           {
@@ -163,9 +138,9 @@ export const useProductStore = defineStore("product", {
       {
         id: 4,
         title: "Product 4",
-        price: 4000000,
+        price: "4000000",
         hasDiscount: true,
-        discountPrice: 350000,
+        discountPrice: "350000",
         description: "Product 4 description",
         colors: [
           {
@@ -195,7 +170,7 @@ export const useProductStore = defineStore("product", {
       {
         id: 5,
         title: "Product 5",
-        price: 5000000,
+        price: "5000000",
         hasDiscount: false,
         description: "Product 5 description",
         colors: [
@@ -226,7 +201,7 @@ export const useProductStore = defineStore("product", {
       {
         id: 6,
         title: "Product 6",
-        price: 6000000,
+        price: "6000000",
         hasDiscount: true,
         discountPrice: 550000,
         description: "Product 6 description",
@@ -240,12 +215,25 @@ export const useProductStore = defineStore("product", {
       },
     ] as Product[],
   }),
-  actions: {},
+
+  actions: {
+    getProductById(id: number) {
+      return this.products.find((product) => product.id === id);
+    },
+
+    editProduct(product: Product) {
+      console.log(product);
+
+      this.products = this.products.map((p) =>
+        p.id === product.id ? product : p
+      );
+    },
+  },
 
   getters: {
-    getProductById(state) {
-      return (id: number): Product | undefined =>
-        state.products.find((product) => product.id === id);
-    },
+    // getProductById(state) {
+    //   return (id: number): Product | undefined =>
+    //     state.products.find((product) => product.id === id);
+    // },
   },
 });
