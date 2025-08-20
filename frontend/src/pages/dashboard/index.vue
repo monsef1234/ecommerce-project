@@ -72,7 +72,7 @@
       <Column field="price" header="Price" sortable>
         <template #body="slotProps">
           <span class="font-bold">{{
-            currencyFormat(slotProps.data.price)
+            currencyFormat(Number(slotProps.data.price))
           }}</span>
         </template>
       </Column>

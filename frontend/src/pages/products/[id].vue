@@ -321,7 +321,10 @@ import { useCartStore } from "@/store/cart";
 import { currencyFormat } from "@/utilities/currencyFormat";
 import type { Product } from "@/types/Product";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { checkoutSchema } from "@/schemas/checkout.schema";
+import {
+  checkoutSchema,
+  type CheckoutSchemaType,
+} from "@/schemas/checkout.schema";
 import { Form, type FormSubmitEvent } from "@primevue/forms";
 import zrExpress from "@/zr-express.json";
 
@@ -350,7 +353,7 @@ export default defineComponent({
         state: null,
         quantity: 1,
         delivery: "home" as "home" | "point",
-      },
+      } as CheckoutSchemaType,
 
       selectedColor: 0 as number,
 

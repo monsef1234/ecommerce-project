@@ -1,13 +1,8 @@
-interface Image {
+import type { Color } from "./color";
+
+export interface Image {
   id: number;
   url: string;
-  isMain: boolean;
-}
-
-export interface Color {
-  id: number;
-  name: string;
-  code: string;
 }
 
 export interface Product {

@@ -60,7 +60,7 @@
 import { defineComponent } from "vue";
 import { Form, type FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { loginSchema } from "@/schemas/login.schema";
+import { loginSchema, type LoginSchemaType } from "@/schemas/login.schema";
 import { useAuthStore } from "@/store/auth";
 
 export default defineComponent({
@@ -69,7 +69,7 @@ export default defineComponent({
       initialValues: {
         email: "",
         password: "",
-      },
+      } as LoginSchemaType,
 
       resolver: zodResolver(loginSchema),
     };

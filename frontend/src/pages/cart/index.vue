@@ -21,11 +21,7 @@
             :max="99"
             class="w-16!"
           />
-          <Image
-            :src="item.images.find((image) => image.isMain)?.url"
-            :alt="item.title"
-            width="100"
-          />
+          <Image :src="item.images[0].url" :alt="item.title" width="100" />
           <div class="flex-1">
             <router-link :to="`/products/${item.id}`">
               <h3>{{ item.title }}</h3>

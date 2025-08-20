@@ -11,6 +11,7 @@ export const checkoutSchema = z.object({
     .regex(/^0[567]\d{8}$/, "رقم الهاتف غير صحيح"),
   address: z.string().nonempty("العنوان مطلوب"),
   quantity: z.number().positive("الكمية مطلوبة."),
+  delivery: z.enum(["home", "point"]),
   state: z
     .object({
       id: z.number(),
@@ -22,4 +23,4 @@ export const checkoutSchema = z.object({
     .refine((val) => val !== null, { message: "الولاية مطلوبة." }),
 });
 
-// export type CheckoutSchema = z.infer<typeof checkoutSchema>;
+export type CheckoutSchemaType = z.infer<typeof checkoutSchema>;

@@ -1,9 +1,12 @@
 <template>
-  <Card class="relative cursor-pointer" @click="$router.push(`/products/${product.id}`)">
+  <Card
+    class="relative cursor-pointer"
+    @click="$router.push(`/products/${product.id}`)"
+  >
     <template #header>
-      <img
+      <Image
         alt="user header"
-        :src="product.images.find((image) => image.isMain)?.url"
+        :src="product.images[0].url"
       />
     </template>
     <template #title>
@@ -18,12 +21,12 @@
               ? 'line-through text-gray-500 text-md'
               : 'text-lg'
           "
-          >{{ currencyFormat(product.price) }}</span
+          >{{ currencyFormat(Number(product.price)) }}</span
         >
         <span
           class="font-bold text-lg text-green-500"
           v-if="product.hasDiscount"
-          >{{ currencyFormat(product.discountPrice!) }}</span
+          >{{ currencyFormat(Number(product.discountPrice)!) }}</span
         >
         <Tag
           class="absolute top-0 left-0 bg-red-500! text-white! px-2 py-1 rounded-none! rounded-br-lg!"

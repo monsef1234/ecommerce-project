@@ -1,12 +1,13 @@
 import { z } from "zod";
 
-export const addProductSchema = z.object({
+export const productSchema = z.object({
+  id: z.number(),
   title: z.string().nonempty("الاسم مطلوب"),
   price: z
     .string()
     .nonempty("السعر مطلوب")
     .regex(/^\d+(\.\d+)?$/, "الرقم غير صحيح"),
-  hasDiscount: z.boolean().optional(),
+  hasDiscount: z.boolean(),
   description: z
     .string()
     .nonempty("الوصف مطلوب")
@@ -14,7 +15,8 @@ export const addProductSchema = z.object({
   discountPrice: z
     .string()
     .nonempty("السعر مطلوب")
-    .regex(/^\d+(\.\d+)?$/, "الرقم غير صحيح"),
+    .regex(/^\d+(\.\d+)?$/, "الرقم غير صحيح")
+    .optional(),
   colors: z
     .array(
       z.object({
@@ -26,5 +28,4 @@ export const addProductSchema = z.object({
     .nonempty("اللون مطلوب"),
 });
 
-export type ProductForm = z.infer<typeof addProductSchema>;
-
+export type ProductSchemaType = z.infer<typeof productSchema>;

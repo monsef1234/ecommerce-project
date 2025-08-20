@@ -94,9 +94,40 @@
           v-if="$form.discountPrice?.invalid"
           severity="error"
           size="small"
+          this.initialValues.logo.id
           variant="simple"
           >{{ $form.discountPrice.error.message }}</Message
         >
+      </div>
+
+      <FileUpload
+        mode="basic"
+        @select="onFileSelect"
+        customUpload
+        auto
+        severity="secondary"
+        class="p-button-outlined"
+        accept="image/*"
+      />
+
+      <div class="flex gap-1">
+        <div v-for="image in images" class="relative">
+          <Image
+            :key="image.id"
+            :src="image.url"
+            alt="Image"
+            width="200"
+            height="200"
+          />
+
+          <Button
+            icon="pi pi-times"
+            variant="text"
+            size="small"
+            @click="removeImage(image.id)"
+            class="absolute! top-0! right-0!"
+          />
+        </div>
       </div>
 
       <Button
@@ -104,7 +135,7 @@
         label="تعديل المنتج"
         icon="pi pi-pencil"
         variant="filled"
-        :disabled="isProductUpdated($form)"
+        :disabled="isProductUpdated($form) && isImagesUpdated"
       />
       <Button
         type="button"
@@ -114,6 +145,8 @@
         @click="goToHome"
       />
     </Form>
+
+    <Toast dir="rtl" />
   </div>
 </template>
 
@@ -122,11 +155,17 @@ import { defineComponent } from "vue";
 
 import { Form, type FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { addProductSchema } from "@/schemas/add-product.schema";
-import type { Color, Product } from "@/types/Product";
+import {
+  productSchema,
+  type ProductSchemaType,
+} from "@/schemas/product.schema";
+import type { Image, Product } from "@/types/Product";
 import { useProductStore } from "@/store/product";
 import isEqual from "lodash/isEqual";
 import sortBy from "lodash/sortBy";
+import type { Color } from "@/types/color";
+import type { FileUploadSelectEvent } from "primevue";
+import cloneDeep from "lodash/cloneDeep";
 
 export default defineComponent({
   name: "EditProduct",
@@ -141,8 +180,7 @@ export default defineComponent({
         discountPrice: "",
         description: "",
         colors: [],
-        images: [],
-      } as Product,
+      } as ProductSchemaType,
 
       colors: [
         {
@@ -162,14 +200,27 @@ export default defineComponent({
         },
       ] as Color[],
 
-      resolver: zodResolver(addProductSchema),
+      images: [] as Image[],
+
+      product: null as Product | null,
+
+      resolver: zodResolver(productSchema),
     };
   },
 
   methods: {
     onFormSubmit({ valid, states }: FormSubmitEvent) {
+      if (!this.images.length) {
+        return this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: "يجب إضافة على الأقل صورة",
+          life: 3000,
+        });
+      }
+
       if (valid) {
-        const product: Product = {
+        const product = {
           id: Number(this.$route.params.id),
           title: states.title.value,
           price: states.price.value,
@@ -177,13 +228,7 @@ export default defineComponent({
           description: states.description.value,
           discountPrice: states.discountPrice.value,
           colors: states.colors.value,
-          images: [
-            {
-              id: 1,
-              url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-              isMain: true,
-            },
-          ],
+          images: this.images,
         };
 
         this.storeProduct.editProduct(product);
@@ -192,6 +237,33 @@ export default defineComponent({
 
     goToHome() {
       this.$router.push("/dashboard/products");
+    },
+
+    onFileSelect(event: FileUploadSelectEvent) {
+      const file = event.files?.[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        this.images.push({
+          id: Date.now(),
+          url: e.target?.result as string,
+        });
+
+        console.log(this.images);
+        console.log(this.product?.images);
+      };
+      reader.readAsDataURL(file);
+    },
+
+    removeImage(id: number) {
+      this.images = this.images.filter((image) => image.id !== id);
+    },
+
+    normalizeProduct(product: ProductSchemaType) {
+      return {
+        ...product,
+        colors: sortBy(product.colors, "id"), // ✅ ترتيب حسب id
+      };
     },
 
     isProductUpdated(form: any) {
@@ -203,26 +275,18 @@ export default defineComponent({
         discountPrice: form.discountPrice?.value,
         description: form.description?.value,
         colors: form.colors?.value,
-        images: [
-          {
-            id: 1,
-            url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-            isMain: true,
-          },
-        ],
-      };
+      } as ProductSchemaType;
 
       return isEqual(
         this.normalizeProduct(filterFormValues),
         this.normalizeProduct(this.initialValues)
       );
     },
+  },
 
-    normalizeProduct(product: Product) {
-      return {
-        ...product,
-        colors: sortBy(product.colors, "id"), // ✅ ترتيب حسب id
-      };
+  computed: {
+    isImagesUpdated() {
+      return isEqual(this.images, this.product?.images);
     },
   },
 
@@ -237,8 +301,19 @@ export default defineComponent({
   mounted() {
     const id = this.$route.params.id;
 
-    this.initialValues =
-      this.storeProduct.getProductById(Number(id)) ?? this.initialValues;
+    this.product = this.storeProduct.getProductById(Number(id)) || null;
+
+    this.initialValues = {
+      id: this.product?.id,
+      title: this.product?.title,
+      price: this.product?.price,
+      hasDiscount: this.product?.hasDiscount,
+      discountPrice: this.product?.discountPrice,
+      description: this.product?.description,
+      colors: this.product?.colors,
+    } as ProductSchemaType;
+
+    this.images = cloneDeep(this.product?.images) || [];
   },
 });
 </script>

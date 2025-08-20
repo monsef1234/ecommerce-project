@@ -130,7 +130,7 @@
         variant="filled"
       />
     </Form>
-    <Toast />
+    <Toast dir="rtl" />
   </div>
 </template>
 
@@ -140,10 +140,10 @@ import { defineComponent } from "vue";
 import { Form, type FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import {
-  addProductSchema,
-  type ProductForm,
-} from "@/schemas/add-product.schema";
-import type { Color } from "@/types/Product";
+  productSchema,
+  type ProductSchemaType,
+} from "@/schemas/product.schema";
+import type { Color } from "@/types/color";
 
 export default defineComponent({
   name: "AddProduct",
@@ -151,16 +151,17 @@ export default defineComponent({
   data() {
     return {
       initialValues: {
-        id: 0,
+        id:0,
         title: "",
         price: "",
         hasDiscount: false,
         discountPrice: "",
         description: "",
         colors: [],
-      } as ProductForm,
+        images: [],
+      } as ProductSchemaType,
 
-      resolver: zodResolver(addProductSchema),
+      resolver: zodResolver(productSchema),
 
       images: [],
 
@@ -189,7 +190,7 @@ export default defineComponent({
       if (!this.images.length) {
         return this.$toast.add({
           severity: "error",
-          summary: "Error",
+          summary: "خطأ",
           detail: "يجب إضافة على الأقل صورة",
           life: 3000,
         });

@@ -7,3 +7,6 @@ export const loginSchema = z.object({
     .nonempty("كلمة السر مطلوبة")
     .min(6, "كلمة السر يجب أن تكون أكثر من 6 حروف"),
 });
+
+export type LoginSchemaType = z.infer<typeof loginSchema>;
+

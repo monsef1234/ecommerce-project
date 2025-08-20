@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- Header -->
     <header class="fixed top-0 left-0 w-full z-[10]">
       <div class="flex justify-between items-center p-4">
         <router-link to="/dashboard">
@@ -19,18 +20,21 @@
       </div>
     </header>
 
+    <!-- Drawer (mobile) -->
     <Drawer
       v-model:visible="drawer"
       position="left"
       :show-close-icon="true"
-      class="w-[250px]! md:w-[25vw]!"
+      class="w-[250px]! md:hidden!"
     >
-      <div class="flex flex-col h-full">
+      <nav class="flex flex-col h-full">
         <div class="overflow-y-auto">
           <ul class="list-none p-0 m-0 overflow-hidden">
-            <li li v-for="link in links" :key="link.name">
-              <a
-                class="flex items-center cursor-pointer py-4 px-2 rounded"
+            <li v-for="link in links" :key="link.name">
+              <!-- menu -->
+              <div
+                class="flex items-center cursor-pointer py-3 px-2 rounded"
+                v-if="link.items"
                 v-ripple
                 v-styleclass="{
                   selector: '@next',
@@ -40,40 +44,77 @@
                   leaveActiveClass: 'animate-slideup',
                 }"
               >
-                <router-link
-                  :to="link.to"
-                  active-class="text-green-500"
-                  v-if="!link.items"
-                  @click="drawer = false"
-                >
-                  <i :class="link.icon" class="mr-2"></i>
-                  <span class="font-medium">{{ link.name }}</span>
-                </router-link>
-                <div v-if="link.items">
-                  <i :class="link.icon" class="mr-2"></i>
-                  <span class="font-medium">{{ link.name }}</span>
-                </div>
-                <i class="pi pi-chevron-down ml-auto" v-if="link.items"></i>
-              </a>
+                <i :class="link.icon" class="mr-2 text-lg!"></i>
+                <span class="font-medium text-lg">{{ link.name }}</span>
+                <i class="pi pi-chevron-down ml-auto! text-lg!"></i>
+              </div>
+              <router-link
+                v-else
+                :to="link.to"
+                class="flex items-center py-3 px-2 rounded"
+                active-class="text-green-500"
+                @click="drawer = false"
+              >
+                <i :class="link.icon" class="mr-2 text-lg!"></i>
+                <span class="font-medium text-lg">{{ link.name }}</span>
+              </router-link>
+
+              <!-- Submenu 1-->
               <ul
-                class="list-none py-0 pl-4 pr-0 m-0 hidden overflow-y-hidden transition-all duration-[400ms] ease-in-out"
                 v-if="link.items"
+                class="list-none py-0 pl-6 pr-0 m-0 block overflow-y-hidden transition-all duration-400 ease-in-out"
               >
                 <li v-for="item in link.items" :key="item.name">
+                  <div
+                    class="flex items-center cursor-pointer py-3 px-2 rounded"
+                    v-if="item.items"
+                    v-ripple
+                    v-styleclass="{
+                      selector: '@next',
+                      enterFromClass: 'hidden',
+                      enterActiveClass: 'animate-slidedown',
+                      leaveToClass: 'hidden',
+                      leaveActiveClass: 'animate-slideup',
+                    }"
+                  >
+                    <i :class="item.icon" class="mr-2 text-lg!"></i>
+                    <span class="font-medium text-lg">{{ item.name }}</span>
+                    <i class="pi pi-chevron-down ml-auto text-lg!"></i>
+                  </div>
                   <router-link
+                    v-else
                     :to="item.to"
+                    class="flex items-center py-3 px-2 rounded"
                     active-class="text-green-500"
-                    class="flex items-center cursor-pointer p-4 rounded"
                     @click="drawer = false"
                   >
-                    <i :class="item.icon" class="mr-2"></i>
-                    <span class="font-medium">{{ item.name }}</span>
+                    <i :class="item.icon" class="mr-2 text-lg!"></i>
+                    <span class="font-medium text-lg">{{ item.name }}</span>
                   </router-link>
+
+                  <!-- Submenu 2-->
+                  <ul
+                    v-if="item.items"
+                    class="list-none py-0 pl-6 pr-0 m-0 block overflow-y-hidden transition-all duration-400 ease-in-out"
+                  >
+                    <li v-for="sub in item.items" :key="sub.name">
+                      <router-link
+                        :to="sub.to"
+                        class="flex items-center cursor-pointer py-3 px-2 rounded"
+                        active-class="text-green-500"
+                        @click="drawer = false"
+                      >
+                        <i :class="sub.icon" class="mr-2 text-lg!"></i>
+                        <span class="font-medium text-lg">{{ sub.name }}</span>
+                      </router-link>
+                    </li>
+                  </ul>
                 </li>
               </ul>
             </li>
           </ul>
         </div>
+
         <div class="mt-auto">
           <Button
             label="Logout"
@@ -81,20 +122,23 @@
             class="w-full"
             severity="danger"
             variant="outlined"
-          ></Button>
+          />
         </div>
-      </div>
+      </nav>
     </Drawer>
 
+    <!-- Sidebar (desktop) -->
     <aside
       class="border-r border-gray-200 fixed h-[calc(100vh-5rem)] hidden sm:block w-64 overflow-y-auto left-0 top-0 mt-20"
     >
-      <div class="flex flex-col h-full">
+      <nav class="flex flex-col h-full">
         <div class="overflow-y-auto">
-          <ul class="list-none p-0 m-0 overflow-hidden">
+          <ul class="list-none p-4 m-0">
             <li v-for="link in links" :key="link.name">
-              <a
-                class="flex items-center cursor-pointer p-4 rounded"
+              <!-- menu -->
+              <div
+                class="flex items-center cursor-pointer py-3 px-2 rounded"
+                v-if="link.items"
                 v-ripple
                 v-styleclass="{
                   selector: '@next',
@@ -104,38 +148,77 @@
                   leaveActiveClass: 'animate-slideup',
                 }"
               >
-                <router-link
-                  :to="link.to"
-                  active-class="text-green-500"
-                  v-if="!link.items"
-                >
-                  <i :class="link.icon" class="mr-2"></i>
-                  <span class="font-medium">{{ link.name }}</span>
-                </router-link>
-                <div v-if="link.items">
-                  <i :class="link.icon" class="mr-2"></i>
-                  <span class="font-medium">{{ link.name }}</span>
-                </div>
-                <i class="pi pi-chevron-down ml-auto" v-if="link.items"></i>
-              </a>
+                <i :class="link.icon" class="mr-2 text-lg!"></i>
+                <span class="font-medium text-lg">{{ link.name }}</span>
+                <i class="pi pi-chevron-down ml-auto! text-lg!"></i>
+              </div>
+              <router-link
+                v-else
+                :to="link.to"
+                class="flex items-center py-3 px-2 rounded"
+                active-class="text-green-500"
+              >
+                <i :class="link.icon" class="mr-2 text-lg!"></i>
+                <span class="font-medium text-lg">{{ link.name }}</span>
+              </router-link>
+
+              <!-- Submenu 1-->
               <ul
-                class="list-none py-0 pl-4 pr-0 m-0 hidden overflow-y-hidden transition-all duration-[400ms] ease-in-out"
                 v-if="link.items"
+                class="list-none py-0 pl-6 pr-0 m-0 block overflow-y-hidden transition-all duration-400 ease-in-out"
               >
                 <li v-for="item in link.items" :key="item.name">
-                  <router-link
-                    :to="item.to"
-                    active-class="text-green-500"
-                    class="flex items-center cursor-pointer p-4 rounded"
+                  <div
+                    class="flex items-center cursor-pointer py-3 px-2 rounded"
+                    v-if="item.items"
+                    v-ripple
+                    v-styleclass="{
+                      selector: '@next',
+                      enterFromClass: 'hidden',
+                      enterActiveClass: 'animate-slidedown',
+                      leaveToClass: 'hidden',
+                      leaveActiveClass: 'animate-slideup',
+                    }"
                   >
-                    <i :class="item.icon" class="mr-2"></i>
-                    <span class="font-medium">{{ item.name }}</span>
+                    <i router-link:class="item.icon" class="mr-2 text-lg!"></i>
+                    <span class="font-medium text-lg">{{ item.name }}</span>
+                    <i
+                      class="pi pi-chevron-down ml-auto text-lg!"
+                      v-if="item.items"
+                    ></i>
+                  </div>
+                  <router-link
+                    v-else
+                    :to="item.to"
+                    class="flex items-center py-3 px-2 rounded"
+                    active-class="text-green-500"
+                  >
+                    <i :class="item.icon" class="mr-2 text-lg!"></i>
+                    <span class="font-medium text-lg">{{ item.name }}</span>
                   </router-link>
+
+                  <!-- Submenu 2-->
+                  <ul
+                    v-if="item.items"
+                    class="list-none py-0 pl-6 pr-0 m-0 block overflow-y-hidden transition-all duration-400 ease-in-out"
+                  >
+                    <li v-for="sub in item.items" :key="sub.name">
+                      <router-link
+                        :to="sub.to"
+                        class="flex items-center cursor-pointer py-3 px-2 rounded"
+                        active-class="text-green-500"
+                      >
+                        <i :class="sub.icon" class="mr-2 text-lg!"></i>
+                        <span class="font-medium text-lg">{{ sub.name }}</span>
+                      </router-link>
+                    </li>
+                  </ul>
                 </li>
               </ul>
             </li>
           </ul>
         </div>
+
         <div class="mt-auto mb-4 px-4">
           <Button
             label="Logout"
@@ -143,11 +226,12 @@
             class="w-full"
             severity="danger"
             variant="outlined"
-          ></Button>
+          />
         </div>
-      </div>
+      </nav>
     </aside>
 
+    <!-- Main content -->
     <main class="sm:ml-70 sm:mr-6 p-4 sm:p-0 mt-[6rem]">
       <router-view />
     </main>
@@ -156,16 +240,20 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
 import logo from "@/assets/images/logo.avif";
+
+type NavItem = {
+  name: string;
+  icon: string;
+  to: string;
+  items?: NavItem[];
+};
 
 export default defineComponent({
   name: "DashboardLayout",
-
   data() {
     return {
       drawer: false,
-
       links: [
         {
           name: "Dashboard",
@@ -188,8 +276,19 @@ export default defineComponent({
             },
             {
               name: "Colors",
-              to: "/dashboard/colors",
               icon: "pi pi-palette",
+              items: [
+                {
+                  name: "All Colors",
+                  to: "/dashboard/colors",
+                  icon: "pi pi-palette",
+                },
+                {
+                  name: "Add Color",
+                  to: "/dashboard/colors/add-color",
+                  icon: "pi pi-plus",
+                },
+              ],
             },
           ],
         },
@@ -198,14 +297,11 @@ export default defineComponent({
           icon: "pi pi-cog",
           to: "/dashboard/settings",
         },
-      ],
+      ] as NavItem[],
     };
   },
-
   setup() {
-    return {
-      logo,
-    };
+    return { logo };
   },
 });
 </script>

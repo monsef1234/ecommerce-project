@@ -18,11 +18,7 @@
         />
       </template>
     </Column>
-    <Column field="title" header="Name" sortable>
-      <template #body="slotProps">
-        {{ slotProps.data.title }}
-      </template>
-    </Column>
+    <Column field="title" header="Name" sortable />
     <Column field="colors" header="Colors">
       <template #body="slotProps">
         <div class="flex gap-2 flex-wrap">
@@ -41,7 +37,7 @@
     <Column field="price" header="Price" sortable>
       <template #body="slotProps">
         <span class="font-bold">{{
-          currencyFormat(slotProps.data.price)
+          currencyFormat(Number(slotProps.data.price))
         }}</span>
       </template>
     </Column>
@@ -56,7 +52,7 @@
     <Column field="discountPrice" header="Discount Price" sortable>
       <template #body="slotProps">
         <span v-if="slotProps.data.hasDiscount" class="font-bold">{{
-          currencyFormat(slotProps.data.discountPrice)
+          currencyFormat(Number(slotProps.data.discountPrice))
         }}</span>
         <span v-else class="font-bold text-lg"> - </span>
       </template>
