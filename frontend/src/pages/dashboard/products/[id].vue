@@ -107,25 +107,29 @@
         auto
         severity="secondary"
         class="p-button-outlined"
-        accept="image/*"
-      />
+        accept="image/jpeg, image/png, image/webp, image/jpg"
+        multiple
+        choose-label="اضافة صورة"
+      >
+      </FileUpload>
 
-      <div class="flex gap-1">
-        <div v-for="image in images" class="relative">
+      <div class="flex flex-wrap gap-4 mt-4" v-if="previewedImages.length">
+        <div
+          v-for="(image, index) in previewedImages"
+          :key="index"
+          class="flex items-center gap-2"
+        >
           <Image
-            :key="image.id"
-            :src="image.url"
+            :src="image"
             alt="Image"
-            width="200"
-            height="200"
+            class="shadow-md rounded-xl sm:w-80 w-full"
           />
 
           <Button
             icon="pi pi-times"
-            variant="text"
-            size="small"
-            @click="removeImage(image.id)"
-            class="absolute! top-0! right-0!"
+            @click="removeImage(index)"
+            variant="outlined"
+            severity="danger"
           />
         </div>
       </div>
@@ -163,9 +167,7 @@ import type { Image, Product } from "@/types/Product";
 import { useProductStore } from "@/store/product";
 import isEqual from "lodash/isEqual";
 import sortBy from "lodash/sortBy";
-import type { Color } from "@/types/color";
 import type { FileUploadSelectEvent } from "primevue";
-import cloneDeep from "lodash/cloneDeep";
 
 export default defineComponent({
   name: "EditProduct",
@@ -180,27 +182,12 @@ export default defineComponent({
         discountPrice: "",
         description: "",
         colors: [],
-      } as ProductSchemaType,
-
-      colors: [
-        {
-          id: 1,
-          name: "Red",
-          code: "#FF0000",
-        },
-        {
-          id: 2,
-          name: "Green",
-          code: "#00FF00",
-        },
-        {
-          id: 3,
-          name: "Blue",
-          code: "#0000FF",
-        },
-      ] as Color[],
+      } as ProductSchemaType,    
 
       images: [] as Image[],
+
+      files: [] as File[],
+      previewedImages: [] as string[],
 
       product: null as Product | null,
 
@@ -210,7 +197,7 @@ export default defineComponent({
 
   methods: {
     onFormSubmit({ valid, states }: FormSubmitEvent) {
-      if (!this.images.length) {
+      if (!this.files.length) {
         return this.$toast.add({
           severity: "error",
           summary: "خطأ",
@@ -229,6 +216,8 @@ export default defineComponent({
           discountPrice: states.discountPrice.value,
           colors: states.colors.value,
           images: this.images,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
 
         this.storeProduct.editProduct(product);
@@ -240,19 +229,17 @@ export default defineComponent({
     },
 
     onFileSelect(event: FileUploadSelectEvent) {
-      const file = event.files?.[0];
-      const reader = new FileReader();
+      this.files.push(...event.files);
 
-      reader.onload = async (e) => {
-        this.images.push({
-          id: Date.now(),
-          url: e.target?.result as string,
-        });
+      event.files.forEach((file: File) => {
+        const reader = new FileReader();
 
-        console.log(this.images);
-        console.log(this.product?.images);
-      };
-      reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          this.previewedImages.push(e.target?.result as string);
+        };
+
+        reader.readAsDataURL(file);
+      });
     },
 
     removeImage(id: number) {
@@ -313,7 +300,8 @@ export default defineComponent({
       colors: this.product?.colors,
     } as ProductSchemaType;
 
-    this.images = cloneDeep(this.product?.images) || [];
+    this.images = this.product?.images || [];
+    this.previewedImages = this.product?.images.map((image) => image.url) || [];
   },
 });
 </script>

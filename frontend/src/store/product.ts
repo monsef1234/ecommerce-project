@@ -3,75 +3,8 @@ import type { Product } from "@/types/Product";
 
 export const useProductStore = defineStore("product", {
   state: () => ({
-    products: [
-      {
-        id: 1,
-        title: "Prodsd,dsl,lsdn,flksdnflskd uct 1",
-        price: "100000",
-        hasDiscount: true,
-        discountPrice: "80000",
-        description: `🔥 عرض خاص – كاسك P9 + AirPods Pro 2 🔥
-
-🎧 استمتع بأفضل تجربة صوت مع باك مميز يجمع بين:
-
-✅ كاسك P9 ستيريو – تصميم عصري وجودة عالية
-
-✅ AirPods Pro 2 – عزل ضوضاء وراحة في الاستعمال
-
- 
-
- (ZR Express) 🚚 توصيل سريع لكل الولايات
-
-💵 الدفع عند الاستلام
-
-📲 اطلب الآن من الرسائل وعيش تجربة صوت استثنائية!
-
-`,
-        colors: [
-          {
-            id: 1,
-            name: "Red",
-            code: "#FF0000",
-          },
-          {
-            id: 2,
-            name: "Green",
-            code: "#00FF00",
-          },
-          {
-            id: 3,
-            name: "Blue",
-            code: "#0000FF",
-          },
-          {
-            id: 4,
-            name: "Yellow",
-            code: "#FFFF00",
-          },
-          {
-            id: 5,
-            name: "Black",
-            code: "#000000",
-          },
-          {
-            id: 6,
-            name: "White",
-            code: "#FFFFFF",
-          },
-          {
-            id: 7,
-            name: "Pink",
-            code: "#FF00FF",
-          },
-        ],
-        images: [
-          {
-            id: 1,
-            url: "https://avradz.store/cdn/shop/files/main-2.png?v=1753221387",
-          },
-        ],
-      },
-    ] as Product[],
+    products: [] as Product[],
+    total: 0,
   }),
 
   actions: {
@@ -86,12 +19,5 @@ export const useProductStore = defineStore("product", {
         p.id === product.id ? product : p
       );
     },
-  },
-
-  getters: {
-    // getProductById(state) {
-    //   return (id: number): Product | undefined =>
-    //     state.products.find((product) => product.id === id);
-    // },
   },
 });

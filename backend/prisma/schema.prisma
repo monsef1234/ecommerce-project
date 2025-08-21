@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  title      String
+  price     Float
+  description String  
+  hasDiscount Boolean @default(false)
+  discountPrice Float?
+  images    Image[]
+  colors    Color[] @relation("ProductColors")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  url       String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Color {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String
+  products  Product[] @relation("ProductColors")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -9,7 +9,7 @@
       :initialValues
       :resolver="resolver"
       @submit="onFormSubmit"
-      class="flex flex-col gap-4"
+      class="flex flex-col gap-4 mb-6"
     >
       <div class="flex flex-col gap-1">
         <InputText name="title" type="text" placeholder="اسم المنتج" fluid />
@@ -81,7 +81,7 @@
         <ToggleSwitch name="hasDiscount" input-id="hasDiscount" />
       </div>
 
-      <div v-if="$form.hasDiscount?.value" class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1" v-if="$form.hasDiscount?.value">
         <InputText
           name="discountPrice"
           type="text"
@@ -98,29 +98,38 @@
         >
       </div>
 
-      <div class="flex flex-col gap-1">
-        <FileUpload
-          name="images"
-          @select="onSelect"
-          @remove="onRemove"
-          @clear="onClear"
-          customUpload
-          :multiple="true"
-          accept="image/*"
-          :maxFileSize="1000000"
-        >
-          <template #empty>
-            <span>إسحب وأسقط الصور هنا أو إضغط للرفع.</span>
-          </template>
-        </FileUpload>
+      <FileUpload
+        mode="basic"
+        @select="onFileSelect"
+        customUpload
+        auto
+        severity="secondary"
+        class="p-button-outlined"
+        accept="image/jpeg, image/png, image/webp, image/jpg"
+        multiple
+        choose-label="اضافة صورة"
+      >
+      </FileUpload>
 
-        <Message
-          v-if="$form.images?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-          >{{ $form.images.error.message }}</Message
+      <div class="flex flex-wrap gap-4 mt-4" v-if="previewedImages.length">
+        <div
+          v-for="(image, index) in previewedImages"
+          :key="index"
+          class="flex items-center gap-2"
         >
+          <Image
+            :src="image"
+            alt="Image"
+            class="shadow-md rounded-xl sm:w-80 w-full"
+          />
+
+          <Button
+            icon="pi pi-times"
+            @click="removeImage(index)"
+            variant="outlined"
+            severity="danger"
+          />
+        </div>
       </div>
 
       <Button
@@ -128,9 +137,11 @@
         label="اضافة المنتج"
         icon="pi pi-plus"
         variant="filled"
+        :loading="loading"
+        :disabled="loading"
       />
     </Form>
-    <Toast dir="rtl" />
+    <Toast dir="rtl" class="w-3xs! md:w-1/4! text-lg! md:text-xl!" />
   </div>
 </template>
 
@@ -144,6 +155,8 @@ import {
   type ProductSchemaType,
 } from "@/schemas/product.schema";
 import type { Color } from "@/types/color";
+import axios from "axios";
+import type { FileUploadSelectEvent } from "primevue";
 
 export default defineComponent({
   name: "AddProduct",
@@ -151,7 +164,7 @@ export default defineComponent({
   data() {
     return {
       initialValues: {
-        id:0,
+        id: 0,
         title: "",
         price: "",
         hasDiscount: false,
@@ -162,8 +175,6 @@ export default defineComponent({
       } as ProductSchemaType,
 
       resolver: zodResolver(productSchema),
-
-      images: [],
 
       colors: [
         {
@@ -182,12 +193,19 @@ export default defineComponent({
           code: "#0000FF",
         },
       ] as Color[],
+
+      files: [] as File[],
+      previewedImages: [] as string[],
+
+      loading: false,
     };
   },
 
   methods: {
-    onFormSubmit({ valid, states }: FormSubmitEvent) {
-      if (!this.images.length) {
+    async onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
+      console.log(this.files);
+
+      if (!this.files.length) {
         return this.$toast.add({
           severity: "error",
           summary: "خطأ",
@@ -197,22 +215,88 @@ export default defineComponent({
       }
 
       if (valid) {
-        console.log(states);
+        this.loading = true;
+        try {
+          const formData = new FormData();
+
+          formData.append("title", states.title.value);
+          formData.append("price", states.price.value);
+          formData.append("hasDiscount", String(states.hasDiscount.value));
+          if (states.discountPrice?.value) {
+            formData.append("discountPrice", states.discountPrice.value);
+          }
+          formData.append("description", states.description.value);
+
+          states.colors.value.forEach((color: Color) => {
+            formData.append("colors[]", color.id.toString());
+          });
+
+          this.files.forEach((file) => {
+            formData.append("images", file);
+          });
+
+          const response = await axios.post(
+            "http://192.168.1.42:4000/products",
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+
+          if (response.status === 201) {
+            this.$toast.add({
+              severity: "success",
+              summary: "تم الاضافة",
+              detail: "تم الاضافة المنتج بنجاح",
+              life: 3000,
+            });
+
+            reset();
+            this.files = [];
+            this.previewedImages = [];
+            this.loading = false;
+          }
+        } catch (error) {
+          this.loading = false;
+          console.log(error);
+          this.$toast.add({
+            severity: "error",
+            summary: "خطأ",
+            detail: "حدث خطأ",
+            life: 3000,
+          });
+        }
+      } else {
+        const formRef = this.$refs.form as {
+          $el: HTMLElement;
+        };
+        const top =
+          formRef.$el.getBoundingClientRect().top + window.scrollY - 100;
+
+        window.scrollTo({
+          top,
+          behavior: "smooth",
+        });
       }
     },
 
-    onSelect(event: any) {
-      this.images = event.files;
+    onFileSelect(event: FileUploadSelectEvent) {
+      this.files.push(...event.files);
+
+      event.files.forEach((file: File) => {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          this.previewedImages.push(e.target?.result as string);
+        };
+
+        reader.readAsDataURL(file);
+      });
     },
 
-    onRemove(event: any) {
-      this.images = this.images.filter(
-        (image: any) => image.name !== event.name
-      );
-    },
-
-    onClear() {
-      this.images = [];
+    removeImage(index: number) {
+      this.previewedImages.splice(index, 1);
+      this.files.splice(index, 1);
     },
   },
 });
