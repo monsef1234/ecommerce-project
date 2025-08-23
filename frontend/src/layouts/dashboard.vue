@@ -2,7 +2,7 @@
   <div>
     <!-- Header -->
     <header
-      class="fixed top-0 left-0 w-full z-[10] backdrop-blur-xl shadow-[0_2px_10px_0_rgba(0,0,0,.1)]"
+      class="fixed top-0 left-0 w-full backdrop-blur-xl z-[10] shadow-[0_2px_10px_0_rgba(0,0,0,.1)]"
     >
       <div class="flex justify-between items-center p-4">
         <router-link to="/dashboard">

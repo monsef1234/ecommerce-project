@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") 
 }
 
 model Product {
@@ -18,7 +19,7 @@ model Product {
   hasDiscount Boolean @default(false)
   discountPrice Float?
   images    Image[]
-  colors    Color[] @relation("ProductColors")
+  colors    ProductColors[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -36,7 +37,17 @@ model Color {
   id        Int      @id @default(autoincrement())
   name      String
   code      String
-  products  Product[] @relation("ProductColors")
+  products  ProductColors[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ProductColors {
+  productId Int
+  colorId   Int
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade )
+  color   Color   @relation(fields: [colorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([productId, colorId])
 }

@@ -100,18 +100,20 @@
 
       <FileUpload
         mode="basic"
-        @select="onFileSelect"
-        customUpload
         auto
         severity="secondary"
         class="p-button-outlined"
         accept="image/jpeg, image/png, image/webp, image/jpg"
+        @select="onFileSelect"
         multiple
         choose-label="اضافة صورة"
-      >
-      </FileUpload>
+        :disabled="loading"
+      />
 
-      <div class="flex flex-wrap gap-4 mt-4" v-if="previewedImages.length">
+      <div
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4"
+        v-if="previewedImages.length"
+      >
         <div
           v-for="(image, index) in previewedImages"
           :key="index"
@@ -176,35 +178,18 @@ export default defineComponent({
 
       resolver: zodResolver(productSchema),
 
-      colors: [
-        {
-          id: 1,
-          name: "Red",
-          code: "#FF0000",
-        },
-        {
-          id: 2,
-          name: "Green",
-          code: "#00FF00",
-        },
-        {
-          id: 3,
-          name: "Blue",
-          code: "#0000FF",
-        },
-      ] as Color[],
+      colors: [] as Color[],
 
       files: [] as File[],
       previewedImages: [] as string[],
 
       loading: false,
+      loadingColors: false,
     };
   },
 
   methods: {
     async onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
-      console.log(this.files);
-
       if (!this.files.length) {
         return this.$toast.add({
           severity: "error",
@@ -231,38 +216,36 @@ export default defineComponent({
             formData.append("colors[]", color.id.toString());
           });
 
-          this.files.forEach((file) => {
+          this.files.forEach((file: File) => {
             formData.append("images", file);
           });
 
           const response = await axios.post(
-            "http://192.168.1.42:4000/products",
+            `${import.meta.env.VITE_API_URL}products`,
             formData,
             {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
 
-          if (response.status === 201) {
-            this.$toast.add({
-              severity: "success",
-              summary: "تم الاضافة",
-              detail: "تم الاضافة المنتج بنجاح",
-              life: 3000,
-            });
+          this.$toast.add({
+            severity: "success",
+            summary: "تم الاضافة",
+            detail: response.data.message || "تم الاضافة المنتج بنجاح",
+            life: 3000,
+          });
 
-            reset();
-            this.files = [];
-            this.previewedImages = [];
-            this.loading = false;
-          }
-        } catch (error) {
+          reset();
+          this.files = [];
+          this.previewedImages = [];
           this.loading = false;
-          console.log(error);
+        } catch (error: any) {
+          this.loading = false;
+
           this.$toast.add({
             severity: "error",
             summary: "خطأ",
-            detail: "حدث خطأ",
+            detail: error.response?.data?.message || "حدث خطأ",
             life: 3000,
           });
         }
@@ -280,7 +263,33 @@ export default defineComponent({
       }
     },
 
+    async loadColors() {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}colors`
+        );
+
+        this.colors = response.data.colors;
+      } catch (error: any) {
+        this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
+          life: 3000,
+        });
+      }
+    },
+
     onFileSelect(event: FileUploadSelectEvent) {
+      if (this.files.length >= 10 || event.files.length > 10) {
+        return this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: "لا يمكن إضافة أكثر من 10 صور",
+          life: 3000,
+        });
+      }
+
       this.files.push(...event.files);
 
       event.files.forEach((file: File) => {
@@ -298,6 +307,12 @@ export default defineComponent({
       this.previewedImages.splice(index, 1);
       this.files.splice(index, 1);
     },
+  },
+
+  async mounted() {
+    this.loadingColors = true;
+    await this.loadColors();
+    this.loadingColors = false;
   },
 });
 </script>

@@ -1,9 +1,19 @@
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">Edit Product</h1>
+    <h1 class="text-2xl font-bold mb-6">تعديل المنتج</h1>
+
+    <h2
+      v-if="!initialValues.id && !loading"
+      class="text-center text-lg font-bold"
+    >
+      المنتج غير موجود
+    </h2>
+    <h2 v-else-if="loading" class="text-center text-lg font-bold">
+      جاري التحميل...
+    </h2>
 
     <Form
-      v-if="initialValues.id"
+      v-if="initialValues.id && !loading"
       dir="rtl"
       ref="form"
       v-slot="$form"
@@ -51,7 +61,7 @@
       <div class="flex flex-col gap-1">
         <MultiSelect
           name="colors"
-          :options="initialValues.colors"
+          :options="colors"
           :option-value="(option) => option"
           option-label="name"
           placeholder="اختر الألوان"
@@ -103,13 +113,13 @@
       <FileUpload
         mode="basic"
         @select="onFileSelect"
-        customUpload
         auto
         severity="secondary"
         class="p-button-outlined"
         accept="image/jpeg, image/png, image/webp, image/jpg"
         multiple
         choose-label="اضافة صورة"
+        :disabled="updateLoading"
       >
       </FileUpload>
 
@@ -139,7 +149,10 @@
         label="تعديل المنتج"
         icon="pi pi-pencil"
         variant="filled"
-        :disabled="isProductUpdated($form) && isImagesUpdated"
+        :disabled="
+          (isProductUpdated($form) && isImagesUpdated) || updateLoading
+        "
+        :loading="updateLoading"
       />
       <Button
         type="button"
@@ -147,6 +160,7 @@
         icon="pi pi-arrow-left"
         variant="text"
         @click="goToHome"
+        :disabled="updateLoading"
       />
     </Form>
 
@@ -163,11 +177,13 @@ import {
   productSchema,
   type ProductSchemaType,
 } from "@/schemas/product.schema";
-import type { Image, Product } from "@/types/Product";
+import type { Product } from "@/types/Product";
 import { useProductStore } from "@/store/product";
-import isEqual from "lodash/isEqual";
-import sortBy from "lodash/sortBy";
+import { isEqual } from "lodash";
+import { sortBy } from "lodash";
+import axios from "axios";
 import type { FileUploadSelectEvent } from "primevue";
+import type { Color } from "@/types/color";
 
 export default defineComponent({
   name: "EditProduct",
@@ -182,22 +198,26 @@ export default defineComponent({
         discountPrice: "",
         description: "",
         colors: [],
-      } as ProductSchemaType,    
+      } as ProductSchemaType,
 
-      images: [] as Image[],
+      newImages: [] as File[],
+      deletedImages: [] as { id: number }[],
 
-      files: [] as File[],
       previewedImages: [] as string[],
 
       product: null as Product | null,
+      colors: [] as Color[],
+
+      loading: true as boolean,
+      updateLoading: false as boolean,
 
       resolver: zodResolver(productSchema),
     };
   },
 
   methods: {
-    onFormSubmit({ valid, states }: FormSubmitEvent) {
-      if (!this.files.length) {
+    async onFormSubmit({ valid, states }: FormSubmitEvent) {
+      if (!this.product?.images.length) {
         return this.$toast.add({
           severity: "error",
           summary: "خطأ",
@@ -207,20 +227,108 @@ export default defineComponent({
       }
 
       if (valid) {
-        const product = {
-          id: Number(this.$route.params.id),
-          title: states.title.value,
-          price: states.price.value,
-          hasDiscount: states.hasDiscount.value,
-          description: states.description.value,
-          discountPrice: states.discountPrice.value,
-          colors: states.colors.value,
-          images: this.images,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+        this.updateLoading = true;
+        try {
+          const formData = new FormData();
 
-        this.storeProduct.editProduct(product);
+          formData.append("title", states.title.value);
+          formData.append("price", states.price.value);
+          formData.append("hasDiscount", String(states.hasDiscount.value));
+          if (states.discountPrice?.value) {
+            formData.append("discountPrice", states.discountPrice.value);
+          }
+          formData.append("description", states.description.value);
+
+          states.colors.value.forEach((color: Color) => {
+            formData.append("colors[]", color.id.toString());
+          });
+
+          if (this.newImages.length) {
+            this.newImages.forEach((image: File) => {
+              formData.append("images", image);
+            });
+          }
+
+          if (this.deletedImages.length) {
+            this.deletedImages.forEach((image: { id: number }) => {
+              formData.append("deletedImages[]", image.id.toString());
+            });
+          }
+
+          const response = await axios.put(
+            `${import.meta.env.VITE_API_URL}products/${this.$route.params.id}`,
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+
+          this.$router.push("/dashboard/products").then(() => {
+            this.$toast.add({
+              severity: "success",
+              summary: "نجاح",
+              detail: response.data.message || "تم تعديل المنتج بنجاح",
+              life: 3000,
+            });
+          });
+        } catch (error: any) {
+          this.$toast.add({
+            severity: "error",
+            summary: "خطأ",
+            detail: error.response?.data?.message || "حدث خطأ",
+            life: 3000,
+          });
+        } finally {
+          this.updateLoading = false;
+        }
+      } else {
+        const formRef = this.$refs.form as {
+          $el: HTMLElement;
+        };
+        const top =
+          formRef.$el.getBoundingClientRect().top + window.scrollY - 100;
+
+        window.scrollTo({
+          top,
+          behavior: "smooth",
+        });
+      }
+    },
+
+    async loadColors() {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}colors`
+        );
+
+        this.colors = response.data?.colors || [];
+      } catch (error: any) {
+        this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
+          life: 3000,
+        });
+      }
+    },
+
+    async fetchProductById() {
+      try {
+        this.loading = true;
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}products/${this.$route.params.id}`
+        );
+
+        this.product = response.data?.product || null;
+      } catch (error: any) {
+        this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
+          life: 3000,
+        });
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -229,7 +337,19 @@ export default defineComponent({
     },
 
     onFileSelect(event: FileUploadSelectEvent) {
-      this.files.push(...event.files);
+      if (
+        (this.product?.images.length ?? 0) + this.newImages.length >= 10 ||
+        event.files.length > 10
+      ) {
+        return this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: "لا يمكن إضافة أكثر من 10 صور",
+          life: 3000,
+        });
+      }
+
+      this.newImages.push(...event.files);
 
       event.files.forEach((file: File) => {
         const reader = new FileReader();
@@ -242,14 +362,23 @@ export default defineComponent({
       });
     },
 
-    removeImage(id: number) {
-      this.images = this.images.filter((image) => image.id !== id);
+    removeImage(index: number) {
+      if (!this.previewedImages[index].startsWith("data:image")) {
+        this.deletedImages.push({ id: this.product?.images[index].id || 0 });
+      } else {
+        const newIdx = index - (this.product?.images.length ?? 0);
+        if (newIdx >= 0 && newIdx < this.newImages.length) {
+          this.newImages.splice(newIdx, 1);
+        }
+      }
+
+      this.previewedImages.splice(index, 1);
     },
 
     normalizeProduct(product: ProductSchemaType) {
       return {
         ...product,
-        colors: sortBy(product.colors, "id"), // ✅ ترتيب حسب id
+        colors: sortBy(product.colors, "id"),
       };
     },
 
@@ -264,16 +393,40 @@ export default defineComponent({
         colors: form.colors?.value,
       } as ProductSchemaType;
 
+      console.log(this.normalizeProduct(filterFormValues));
+      console.log(this.normalizeProduct(this.initialValues));
+
       return isEqual(
         this.normalizeProduct(filterFormValues),
         this.normalizeProduct(this.initialValues)
       );
     },
+
+    setInitialValues() {
+      if (this.product) {
+        this.initialValues = {
+          id: this.product?.id,
+          title: this.product?.title,
+          price: String(this.product?.price),
+          hasDiscount: this.product?.hasDiscount,
+          discountPrice:
+            this.product?.discountPrice === null
+              ? undefined
+              : String(this.product?.discountPrice),
+          description: this.product?.description,
+          colors: this.product?.colors,
+        } as ProductSchemaType;
+
+        this.previewedImages =
+          this.product?.images.map((image) => image.url) || [];
+      }
+    },
   },
 
   computed: {
     isImagesUpdated() {
-      return isEqual(this.images, this.product?.images);
+      const images = this.product?.images.map((image) => image.url);
+      return isEqual(this.previewedImages, images);
     },
   },
 
@@ -285,23 +438,11 @@ export default defineComponent({
     };
   },
 
-  mounted() {
-    const id = this.$route.params.id;
+  async mounted() {
+    await this.loadColors();
+    await this.fetchProductById();
 
-    this.product = this.storeProduct.getProductById(Number(id)) || null;
-
-    this.initialValues = {
-      id: this.product?.id,
-      title: this.product?.title,
-      price: this.product?.price,
-      hasDiscount: this.product?.hasDiscount,
-      discountPrice: this.product?.discountPrice,
-      description: this.product?.description,
-      colors: this.product?.colors,
-    } as ProductSchemaType;
-
-    this.images = this.product?.images || [];
-    this.previewedImages = this.product?.images.map((image) => image.url) || [];
+    this.setInitialValues();
   },
 });
 </script>

@@ -43,6 +43,8 @@
         label="اضافة اللون"
         icon="pi pi-plus"
         variant="filled"
+        :loading="loading"
+        :disabled="loading"
       />
     </Form>
     <Toast dir="rtl" />
@@ -55,8 +57,7 @@ import { defineComponent } from "vue";
 import { Form, type FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { colorSchema, type ColorSchemaType } from "@/schemas/color.schema";
-import { useColorStore } from "@/store/color";
-import { emitter } from "@/events";
+import axios from "axios";
 
 export default defineComponent({
   name: "AddColor",
@@ -68,48 +69,47 @@ export default defineComponent({
         name: "",
       } as ColorSchemaType,
 
+      loading: false as boolean,
+
       resolver: zodResolver(colorSchema),
     };
   },
 
   methods: {
-    onFormSubmit({ valid, states }: FormSubmitEvent) {
+    async onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
       if (valid) {
-        const color = {
-          id: this.colorStore.colors.length + 1,
-          name: states.name.value,
-          code: "#" + states.code.value,
-        };
+        this.loading = true;
+        try {
+          const color = {
+            name: states.name.value,
+            code: "#" + states.code.value,
+          };
 
-        this.colorStore.addColor(color);
+          const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}colors`,
+            color
+          );
 
-        // this.$toast.add({
-        //   severity: "success",
-        //   summary: "تم الاضافة",
-        //   detail: "تم الاضافة بنجاح",
-        //   life: 3000,
-        // });
+          this.$toast.add({
+            severity: "success",
+            summary: "نجاح",
+            detail: response?.data?.message || "تم اضافة اللون بنجاح",
+            life: 3000,
+          });
+
+          reset();
+        } catch (error: any) {
+          this.$toast.add({
+            severity: "error",
+            summary: "خطأ",
+            detail: error.response?.data?.message || "حدث خطأ",
+            life: 3000,
+          });
+        } finally {
+          this.loading = false;
+        }
       }
     },
-  },
-
-  setup() {
-    const colorStore = useColorStore();
-
-    return {
-      colorStore,
-    };
-  },
-
-  mounted() {
-    emitter.on("already-exists", (data) => {
-      this.$toast.add({
-        severity: data.type,
-        summary: "خطأ",
-        detail: data.message,
-        life: 3000,
-      });
-    });
   },
 });
 </script>

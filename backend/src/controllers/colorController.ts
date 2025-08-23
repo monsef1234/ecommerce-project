@@ -5,13 +5,13 @@ export const getAllColors = async (req: Request, res: Response) => {
   try {
     const colors = await prisma.color.findMany();
     res.status(200).json({
-      message: "Colors retrieved successfully",
+      message: "تم جلب الألوان بنجاح",
       colors,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      error: "Failed to get colors",
+      message: "حدث خطأ أثناء جلب الألوان",
     });
   }
 };
@@ -21,13 +21,26 @@ export const createColor = async (req: Request, res: Response) => {
     const { name, code } = req.body;
     const find = await prisma.color.findFirst({
       where: {
-        code,
+        OR: [
+          {
+            name: {
+              equals: name,
+              mode: "insensitive",
+            },
+          },
+          {
+            code: {
+              equals: code,
+              mode: "insensitive",
+            },
+          },
+        ],
       },
     });
 
     if (find) {
       return res.status(409).json({
-        error: "Color already exists",
+        message: "اللون موجود بالفعل",
       });
     }
 
@@ -39,13 +52,13 @@ export const createColor = async (req: Request, res: Response) => {
     });
 
     res.status(201).json({
-      message: "Color created successfully",
+      message: "تم اضافة اللون بنجاح",
       color,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      error: "Failed to create color",
+      message: "حدث خطأ أثناء اضافة اللون",
     });
   }
 };
@@ -53,6 +66,7 @@ export const createColor = async (req: Request, res: Response) => {
 export const deleteColor = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
     const color = await prisma.color.delete({
       where: {
         id: Number(id),
@@ -60,14 +74,29 @@ export const deleteColor = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({
-      message: "Color deleted successfully",
+      message: "تم حذف اللون بنجاح",
       color,
     });
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
-      error: "Failed to delete color",
+      message: "حدث خطأ أثناء حذف اللون",
+    });
+  }
+};
+
+export const totalColors = async (req: Request, res: Response) => {
+  try {
+    const colors = await prisma.color.count();
+    res.status(200).json({
+      message: "تم جلب عدد الألوان بنجاح",
+      colors,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "حدث خطأ أثناء جلب عدد الألوان",
     });
   }
 };

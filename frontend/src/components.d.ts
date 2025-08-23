@@ -37,6 +37,7 @@ declare module 'vue' {
     OverlayBadge: typeof import('primevue/overlaybadge')['default']
     Paginator: typeof import('primevue/paginator')['default']
     Product: typeof import('./components/Product.vue')['default']
+    ProgressBar: typeof import('primevue/progressbar')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
     RadioButton: typeof import('primevue/radiobutton')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

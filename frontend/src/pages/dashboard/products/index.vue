@@ -3,14 +3,17 @@
     <h1 class="text-2xl font-bold mb-6">Products</h1>
 
     <DataTable
-      :value="storeProduct.products"
+      :value="products"
       tableStyle="min-width: 50rem"
+      class="relative!"
       :loading="loading"
     >
       <template #loading>
-        <div class="flex justify-center">
-          <ProgressSpinner stroke-width="2" />
-        </div>
+        <ProgressBar
+          mode="indeterminate"
+          style="height: 5px !important"
+          class="w-full! absolute! top-0! left-0!"
+        ></ProgressBar>
       </template>
 
       <template #empty>
@@ -18,15 +21,25 @@
           class="text-center"
           v-if="!loading && !storeProduct.products.length"
         >
-          <p>لا يوجد منتجات</p>
+          <p class="text-lg font-bold">لا يوجد منتجات</p>
         </div>
       </template>
 
-      <Column field="images" header="Image">
+      <Column
+        header="ID"
+        class="w-1/12! md:w-1/6!"
+        style="width: 5% !important"
+      >
+        <template #body="slotProps">
+          <span class="text-lg">{{ slotProps.index + 1 }}</span>
+        </template>
+      </Column>
+
+      <Column field="images" header="Image  ">
         <template #body="slotProps">
           <Image
-            :src="`http://192.168.1.42:4000${slotProps.data.images[0].url}`"
-            :alt="slotProps.data.images[0].url"
+            :src="slotProps.data.images[0].url"
+            :alt="slotProps.data.images[0].url.split('/').pop()!"
             class="shadow-lg"
             width="80"
           />
@@ -35,7 +48,7 @@
       <Column field="title" header="Name" sortable />
       <Column field="colors" header="Colors">
         <template #body="slotProps">
-          <div class="flex gap-2 flex-wrap">
+          <div class="flex gap-2 flex-wrap" v-if="slotProps.data.colors.length">
             <Tag
               v-for="color in slotProps.data.colors"
               :key="color.id"
@@ -46,6 +59,8 @@
               }"
             />
           </div>
+
+          <span v-else class="font-bold text-lg"> - </span>
         </template>
       </Column>
       <Column field="price" header="Price" sortable>
@@ -84,12 +99,16 @@
             aria-label="Edit"
             variant="text"
             @click="editProduct(slotProps.data)"
+            :disabled="deleteLoading"
           />
           <Button
             icon="pi pi-trash"
             class="p-button-danger"
             aria-label="Delete"
             variant="text"
+            @click="deleteProduct(slotProps.data)"
+            :loading="deleteLoading"
+            :disabled="deleteLoading"
           />
         </template>
       </Column>
@@ -122,8 +141,12 @@ export default defineComponent({
   data() {
     return {
       loading: false,
+      deleteLoading: false,
       limit: 10,
       skip: 0,
+
+      products: [] as Product[],
+      total: 0,
     };
   },
 
@@ -145,19 +168,17 @@ export default defineComponent({
     async fetchProducts() {
       try {
         const response = await axios.get(
-          `http://192.168.1.42:4000/products?limit=${this.limit}&skip=${this.skip}`
+          `${import.meta.env.VITE_API_URL}products?limit=${this.limit}&skip=${
+            this.skip
+          }`
         );
 
-        if (response.status === 200) {
-          this.storeProduct.products = response.data.products;
-        }
-      } catch (error) {
-        console.error(error);
-
+        this.products = response.data.products ?? [];
+      } catch (error: any) {
         this.$toast.add({
           severity: "error",
           summary: "خطأ",
-          detail: "حدث خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
           life: 3000,
         });
       }
@@ -166,32 +187,54 @@ export default defineComponent({
     async fetchLength() {
       try {
         const response = await axios.get(
-          "http://192.168.1.42:4000/products/length"
+          `${import.meta.env.VITE_API_URL}products/length`
         );
 
-        if (response.status === 200) {
-          this.storeProduct.total = response.data.length;
-        }
-      } catch (error) {
-        console.error(error);
-
+        this.total = response.data.length ?? 0;
+      } catch (error: any) {
         this.$toast.add({
           severity: "error",
           summary: "خطأ",
-          detail: "حدث خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
           life: 3000,
         });
       }
     },
 
     async onPageChange(event: PageState) {
-      console.log(event);
       this.skip = event.first;
       this.limit = event.rows;
 
       this.loading = true;
       await this.fetchProducts();
       this.loading = false;
+    },
+
+    async deleteProduct(product: Product) {
+      this.deleteLoading = true;
+      try {
+        const response = await axios.delete(
+          `${import.meta.env.VITE_API_URL}products/${product.id}`
+        );
+
+        this.$toast.add({
+          severity: "success",
+          summary: "نجاح",
+          detail: response.data.message,
+          life: 3000,
+        });
+
+        this.products = this.products.filter((p) => p.id !== product.id);
+        this.deleteLoading = false;
+      } catch (error: any) {
+        this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
+          life: 3000,
+        });
+        this.deleteLoading = false;
+      }
     },
   },
 

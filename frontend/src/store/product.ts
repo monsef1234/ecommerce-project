@@ -12,6 +12,10 @@ export const useProductStore = defineStore("product", {
       return this.products.find((product) => product.id === id);
     },
 
+    deleteProduct(product: Product) {
+      this.products = this.products.filter((p) => p.id !== product.id);
+    },
+
     editProduct(product: Product) {
       console.log(product);
 
