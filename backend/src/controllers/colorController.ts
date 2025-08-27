@@ -1,5 +1,11 @@
 import { type Request, type Response } from "express";
 import prisma from "../prisma/client";
+import { z } from "zod";
+
+const colorSchema = z.object({
+  name: z.string().nonempty("الاسم مطلوب"),
+  code: z.string().nonempty("الكود مطلوب"),
+});
 
 export const getAllColors = async (req: Request, res: Response) => {
   try {
@@ -18,7 +24,7 @@ export const getAllColors = async (req: Request, res: Response) => {
 
 export const createColor = async (req: Request, res: Response) => {
   try {
-    const { name, code } = req.body;
+    const { name, code } = colorSchema.parse(req.body);
     const find = await prisma.color.findFirst({
       where: {
         OR: [

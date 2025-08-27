@@ -6,7 +6,14 @@
     >
       <div class="flex justify-between items-center p-4">
         <router-link to="/dashboard">
-          <Image :src="logo" alt="Logo" width="100" />
+          <Image
+            :src="
+              settingsStore.logoUrl ||
+              'https://dummyimage.com/150x50/cccccc/000000&text=Logo'
+            "
+            alt="Logo"
+            width="full"
+          />
         </router-link>
 
         <div>
@@ -228,6 +235,7 @@
             class="w-full"
             severity="danger"
             variant="outlined"
+            @click="logout"
           />
         </div>
       </nav>
@@ -243,6 +251,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import logo from "@/assets/images/logo.avif";
+import { useSettingsStore } from "@/store/settings";
+import { useAuthStore } from "@/store/auth";
+import supabase from "@/supabase";
 
 type NavItem = {
   name: string;
@@ -304,8 +315,34 @@ export default defineComponent({
     };
   },
 
+  methods: {
+    async logout() {
+      try {
+        const { error } = await supabase.auth.signOut();
+
+        if (error) throw error;
+
+        this.authStore.setUser(null);
+        this.$router.push("/login");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
+
   setup() {
-    return { logo };
+    const settingsStore = useSettingsStore();
+    const authStore = useAuthStore();
+
+    return {
+      settingsStore,
+      logo,
+      authStore,
+    };
+  },
+
+  mounted() {
+    this.settingsStore.fetchSetting();
   },
 });
 </script>

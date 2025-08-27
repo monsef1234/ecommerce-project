@@ -30,7 +30,29 @@ async function main() {
           },
         ],
       },
-      colors: { connect: [{ id: red.id }, { id: blue.id }] },
+    },
+  });
+
+  await prisma.productColors.create({
+    data: {
+      productId: product.id,
+      colorId: red.id,
+    },
+  });
+
+  await prisma.productColors.create({
+    data: {
+      productId: product.id,
+      colorId: blue.id,
+    },
+  });
+
+  await prisma.setting.create({
+    data: {
+      storeName: "Store",
+      logoUrl: "https://example.com/logo.png",
+      phone: "123456789",
+      phone2: "987654321",
     },
   });
 }

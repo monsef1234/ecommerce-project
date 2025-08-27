@@ -3,8 +3,8 @@ import type { Color } from "./color";
 export interface Image {
   id: number;
   url: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   productId: number;
 }
 
@@ -17,6 +17,6 @@ export interface Product {
   description: string;
   colors: Color[];
   images: Image[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

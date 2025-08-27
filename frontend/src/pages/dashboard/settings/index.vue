@@ -2,123 +2,125 @@
   <div>
     <h1 class="text-2xl font-bold mb-6">Settings</h1>
 
+    <h2 v-if="settingsStore.loading" class="text-center text-lg font-bold">
+      جاري التحميل...
+    </h2>
     <Form
+      v-else
       dir="rtl"
       ref="form"
       v-slot="$form"
-      v-if="initialValues.id"
-      :initialValues
+      v-if="settingsStore.settings.id"
+      :initialValues="settingsStore.initialValues"
       :resolver="resolver"
       @submit="onFormSubmit"
-      class="flex flex-col gap-4"
+      class="flex flex-col gap-4 mb-6"
     >
       <div class="flex flex-col gap-1">
-        <InputText name="name" type="text" placeholder="اسم المتجر" fluid />
-
-        <Message
-          v-if="$form.name?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-          >{{ $form.name.error.message }}</Message
-        >
-      </div>
-
-      <div class="flex flex-col gap-1">
         <InputText
-          name="email"
-          type="email"
-          placeholder="البريد الالكتروني"
-          fluid
-        />
-
-        <Message
-          v-if="$form.email?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-          >{{ $form.email.error.message }}</Message
-        >
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <InputText
-          name="phone_one"
+          name="storeName"
           type="text"
-          placeholder="رقم الهاتف"
+          placeholder="اسم المتجر"
           fluid
         />
 
         <Message
-          v-if="$form.phone_one?.invalid"
+          v-if="$form.storeName?.invalid"
           severity="error"
           size="small"
           variant="simple"
-          >{{ $form.phone_one.error.message }}</Message
+          >{{ $form.storeName?.error?.message }}</Message
+        >
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <InputText name="phone1" type="text" placeholder="رقم الهاتف" fluid />
+
+        <Message
+          v-if="$form.phone1?.invalid"
+          severity="error"
+          size="small"
+          variant="simple"
+          >{{ $form.phone1?.error?.message }}</Message
         >
       </div>
 
       <div class="flex flex-col gap-1">
         <InputText
-          name="phone_two"
+          name="phone2"
           type="text"
           placeholder="رقم الهاتف (اختياري)"
           fluid
         />
 
         <Message
-          v-if="$form.phone_two?.invalid"
+          v-if="$form.phone2?.invalid"
           severity="error"
           size="small"
           variant="simple"
-          >{{ $form.phone_two.error.message }}</Message
+          >{{ $form.phone2?.error?.message }}</Message
         >
       </div>
 
       <div class="flex flex-col gap-1">
         <InputText
-          name="phone_three"
+          name="phone3"
           type="text"
           placeholder="رقم الهاتف (اختياري)"
           fluid
         />
 
         <Message
-          v-if="$form.phone_three?.invalid"
+          v-if="$form.phone3?.invalid"
           severity="error"
           size="small"
           variant="simple"
-          >{{ $form.phone_three.error.message }}</Message
+          >{{ $form.phone3?.error?.message }}</Message
         >
       </div>
 
       <FileUpload
         mode="basic"
         @select="onFileSelect"
-        customUpload
         auto
         severity="secondary"
         class="p-button-outlined"
-        accept="image/*"
-      />
+        accept="image/jpeg, image/png, image/webp, image/jpg"
+        choose-label="اضافة صورة"
+        :disabled="loading"
+      >
+      </FileUpload>
 
-      <div v-if="src" class="flex items-center gap-2">
-        <Image :src="src" alt="Logo" width="150" height="150" />
-        <i
-          v-if="src.startsWith('data:image')"
-          class="pi pi-times cursor-pointer"
-          @click="
-            src = settingsStore.settings.logo;
-            imageChanged = false;
-          "
-        />
+      <div
+        class="flex flex-wrap gap-4 mt-4"
+        v-if="settingsStore.previewedImage"
+      >
+        <div class="flex items-center gap-2">
+          <Image
+            :src="settingsStore.previewedImage"
+            :alt="settingsStore.settings.storeName"
+            class="shadow-md rounded-xl sm:w-80 w-fit!"
+          />
+
+          <Button
+            icon="pi pi-times"
+            variant="outlined"
+            severity="danger"
+            @click="
+              settingsStore.previewedImage = '';
+              imageChanged = true;
+            "
+            aria-label="حذف الصورة"
+          />
+        </div>
       </div>
       <Button
         type="submit"
         label="حفظ"
         icon="pi pi-save"
         variant="filled"
-        :disabled="isUpdated($form) && !imageChanged"
+        :disabled="(isUpdated($form) && !imageChanged) || loading"
+        :loading="loading"
       />
     </Form>
 
@@ -137,53 +139,43 @@ import type { FormSubmitEvent } from "@primevue/forms";
 import { useSettingsStore } from "@/store/settings";
 import { isEqual } from "lodash";
 import type { FileUploadSelectEvent } from "primevue";
+import axios from "axios";
 
 export default defineComponent({
   name: "Settings",
 
   data() {
     return {
-      initialValues: {
-        id: 0,
-        name: "",
-        email: "",
-        phone_one: "",
-        phone_two: "",
-        phone_three: "",
-      } as SettingsSchemaType,
-
-      src: "",
       file: null as File | null,
 
       imageChanged: false,
+      loading: false,
 
       resolver: zodResolver(settingsSchema),
-
-      newPhone: "",
     };
   },
 
   methods: {
     isUpdated(form: any) {
       const filterFormValues = {
-        id: this.initialValues.id,
-        name: form.name?.value,
-        email: form.email?.value,
-        phone_one: form.phone_one?.value,
+        id: this.settingsStore.settings.id,
+        storeName: form.storeName?.value,
+        phone1: form.phone1?.value,
+        phone2: form.phone2?.value,
+        phone3: form.phone3?.value,
       } as SettingsSchemaType;
 
-      if (form.phone_two?.value) {
-        filterFormValues.phone_two = form.phone_two?.value;
+      if (form.phone2?.value) {
+        filterFormValues.phone2 = form.phone2?.value;
       }
-      if (form.phone_three?.value) {
-        filterFormValues.phone_three = form.phone_three?.value;
+      if (form.phone3?.value) {
+        filterFormValues.phone3 = form.phone3?.value;
       }
-      console.log(filterFormValues);
-      console.log(this.initialValues);
 
-      console.log(isEqual(filterFormValues, this.initialValues));
-
-      return isEqual(filterFormValues, this.initialValues);
+      return (
+        isEqual(filterFormValues, this.settingsStore.initialValues) ||
+        this.imageChanged
+      );
     },
 
     onFileSelect(event: FileUploadSelectEvent) {
@@ -193,16 +185,69 @@ export default defineComponent({
       this.file = file;
 
       reader.onload = async (e) => {
-        this.src = e.target?.result as string;
+        this.settingsStore.previewedImage = e.target?.result as string;
         this.imageChanged = true;
       };
 
       reader.readAsDataURL(file);
     },
 
-    onFormSubmit({ valid, states }: FormSubmitEvent) {
+    async onFormSubmit({ valid, states }: FormSubmitEvent) {
+      if (this.settingsStore.previewedImage.trim() === "") {
+        this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: "يجب إضافة صورة",
+          life: 3000,
+        });
+        return;
+      }
+
       if (valid) {
-        console.log(states);
+        this.loading = true;
+        try {
+          const formData = new FormData();
+
+          formData.append("storeName", states.storeName.value);
+          formData.append("phone1", states.phone1.value);
+          if (states.phone2.value) {
+            formData.append("phone2", states.phone2.value);
+          }
+          if (states.phone3.value) {
+            formData.append("phone3", states.phone3.value);
+          }
+          if (this.file) {
+            formData.append("logo", this.file);
+          }
+
+          const response = await axios.put(
+            `${import.meta.env.VITE_API_URL}settings`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+
+          await this.settingsStore.fetchSetting();
+
+          this.$toast.add({
+            severity: "success",
+            summary: "تم",
+            detail: response.data.message || "تم تحديث الإعدادات بنجاح",
+            life: 3000,
+          });
+        } catch (error: any) {
+          this.$toast.add({
+            severity: "error",
+            summary: "خطأ",
+            detail: error.response?.data?.message || "حدث خطأ",
+            life: 3000,
+          });
+        } finally {
+          this.loading = false;
+        }
       }
     },
   },
@@ -213,12 +258,6 @@ export default defineComponent({
     return {
       settingsStore,
     };
-  },
-
-  mounted() {
-    const { logo, ...settings } = this.settingsStore.settings;
-    this.initialValues = settings;
-    this.src = this.settingsStore.settings.logo;
   },
 });
 </script>

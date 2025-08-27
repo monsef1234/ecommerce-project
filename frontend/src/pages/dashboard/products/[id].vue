@@ -217,7 +217,7 @@ export default defineComponent({
 
   methods: {
     async onFormSubmit({ valid, states }: FormSubmitEvent) {
-      if (!this.product?.images.length) {
+      if (!this.previewedImages.length) {
         return this.$toast.add({
           severity: "error",
           summary: "خطأ",
@@ -318,6 +318,8 @@ export default defineComponent({
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}products/${this.$route.params.id}`
         );
+
+        console.log(response);
 
         this.product = response.data?.product || null;
       } catch (error: any) {

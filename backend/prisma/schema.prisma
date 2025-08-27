@@ -22,6 +22,8 @@ model Product {
   colors    ProductColors[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("products")  
 }
 
 model Image {
@@ -31,6 +33,8 @@ model Image {
   productId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("images")
 }
 
 model Color {
@@ -40,6 +44,8 @@ model Color {
   products  ProductColors[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("colors")
 }
 
 model ProductColors {
@@ -50,4 +56,33 @@ model ProductColors {
   color   Color   @relation(fields: [colorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([productId, colorId])
+
+  @@map("product_colors")
+}
+
+model Setting {
+  id Int @id @default(autoincrement())
+  storeName String
+  logoUrl String
+  phone String
+  phone2 String?
+  phone3 String?
+
+  @@map("settings")
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  fullname String
+  phone String
+  address String
+  quantity Int
+  price Float
+  delivery String
+  state String
+  total Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
 }

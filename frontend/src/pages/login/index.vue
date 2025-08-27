@@ -51,8 +51,12 @@
         icon="pi pi-user"
         variant="filled"
         class="w-full"
+        :loading="loading"
+        :disabled="loading"
       />
     </Form>
+
+    <Toast dir="rtl" />
   </div>
 </template>
 
@@ -62,6 +66,7 @@ import { Form, type FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { loginSchema, type LoginSchemaType } from "@/schemas/login.schema";
 import { useAuthStore } from "@/store/auth";
+import supabase from "@/supabase";
 
 export default defineComponent({
   data() {
@@ -71,17 +76,38 @@ export default defineComponent({
         password: "",
       } as LoginSchemaType,
 
+      loading: false,
+
       resolver: zodResolver(loginSchema),
     };
   },
 
   methods: {
-    onFormSubmit({ valid, states }: FormSubmitEvent) {
+    async onFormSubmit({ valid, states }: FormSubmitEvent) {
       if (valid) {
-        console.log(states);
+        this.loading = true;
+        try {
+          const {
+            data: { user },
+            error,
+          } = await supabase.auth.signInWithPassword({
+            email: states.email.value,
+            password: states.password.value,
+          });
 
-        this.authStore.setUser(states);
-        this.$router.push("/dashboard");
+          if (error) throw error;
+
+          this.authStore.setUser(user!);
+          this.$router.push("/dashboard");
+        } catch (error: any) {
+          this.$toast.add({
+            severity: "error",
+            summary: "فشل تسجيل الدخول",
+            detail: "يرجى التحقق من بياناتك",
+          });
+        } finally {
+          this.loading = false;
+        }
       }
     },
   },

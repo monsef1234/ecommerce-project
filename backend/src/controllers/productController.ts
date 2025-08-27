@@ -2,11 +2,50 @@ import { type Request, type Response } from "express";
 import prisma from "../prisma/client";
 import sharp from "sharp";
 import { supabase } from "../utils/supabaseClient";
+import { z } from "zod";
+
+const productSchema = z
+  .object({
+    title: z.string().nonempty("الاسم مطلوب"),
+    price: z
+      .string()
+      .nonempty("السعر مطلوب")
+      .regex(/^\d+(\.\d+)?$/, "الرقم غير صحيح"),
+
+    hasDiscount: z.preprocess(
+      (val) => val === "true",
+      z.boolean().default(false)
+    ),
+    description: z
+      .string()
+      .nonempty("الوصف مطلوب")
+      .min(10, "الوصف يجب أن يكون أكثر من 10 حروف"),
+    discountPrice: z.string().optional(),
+    colors: z.array(z.string()).nonempty("اللون مطلوب"),
+    deletedImages: z.array(z.string()).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const phoneRegex = /^\d+(\.\d+)?$/;
+
+    if (data.hasDiscount && !data.discountPrice) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["discountPrice"],
+        message: "السعر مطلوب",
+      });
+    } else if (data.hasDiscount && !phoneRegex.test(data.discountPrice!)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["discountPrice"],
+        message: "السعر غير صحيح",
+      });
+    }
+  });
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const { title, price, description, hasDiscount, discountPrice, colors } =
-      req.body;
+      productSchema.parse(req.body);
 
     const imagesData = [];
 
@@ -36,12 +75,12 @@ export const createProduct = async (req: Request, res: Response) => {
         title,
         price: parseFloat(price),
         description,
-        hasDiscount: hasDiscount === "true" ? true : false,
-        discountPrice: parseFloat(discountPrice) || null,
+        hasDiscount,
+        discountPrice: discountPrice ? parseFloat(discountPrice) : null,
         colors: {
-          connect: colors.map((color: string) => {
-            return { id: Number(color) };
-          }),
+          create: colors.map((id: string) => ({
+            color: { connect: { id: Number(id) } },
+          })),
         },
         images: {
           create: imagesData,
@@ -66,7 +105,11 @@ export const getAllProducts = async (req: Request, res: Response) => {
 
     const products = await prisma.product.findMany({
       include: {
-        colors: true,
+        colors: {
+          include: {
+            color: true,
+          },
+        },
         images: true,
       },
       take: Number(limit),
@@ -95,14 +138,23 @@ export const getProductById = async (req: Request, res: Response) => {
         id: Number(id),
       },
       include: {
-        colors: true,
+        colors: {
+          include: {
+            color: true,
+          },
+        },
         images: true,
       },
     });
 
+    const formattedProduct = {
+      ...product,
+      colors: product?.colors.map((c) => c.color),
+    };
+
     res.status(200).json({
       message: "تم جلب المنتج بنجاح",
-      product,
+      product: formattedProduct,
     });
   } catch (error) {
     console.error(error);
@@ -164,7 +216,9 @@ export const updateProduct = async (req: Request, res: Response) => {
       discountPrice,
       colors,
       deletedImages,
-    } = req.body;
+    } = productSchema.parse(req.body);
+
+    console.log(colors);
 
     if (deletedImages && deletedImages.length > 0) {
       await prisma.product.update({
@@ -218,12 +272,15 @@ export const updateProduct = async (req: Request, res: Response) => {
         title,
         price: parseFloat(price),
         description,
-        hasDiscount: hasDiscount === "true" ? true : false,
-        discountPrice: parseFloat(discountPrice) || null,
+        hasDiscount: hasDiscount,
+        discountPrice: discountPrice ? parseFloat(discountPrice) : null,
         colors: {
-          connect: colors.map((color: string) => {
-            return { id: Number(color) };
-          }),
+          deleteMany: {},
+          create: colors.map((c: string) => ({
+            color: {
+              connect: { id: Number(c) },
+            },
+          })),
         },
         ...(imagesData.length > 0 && {
           images: {
@@ -237,39 +294,15 @@ export const updateProduct = async (req: Request, res: Response) => {
       message: "تم تحديث المنتج بنجاح",
     });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: error,
+      });
+    }
     console.error(error);
 
     res.status(500).json({
       message: "حدث خطأ أثناء تحديث المنتج",
-    });
-  }
-};
-
-export const removeImage = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.body;
-
-    await prisma.product.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        images: {
-          delete: {
-            id: Number(id),
-          },
-        },
-      },
-    });
-
-    res.status(200).json({
-      message: "تم حذف المنتج بنجاح",
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "حدث خطأ أثناء حذف المنتج",
     });
   }
 };

@@ -2,16 +2,15 @@ import { z } from "zod";
 
 export const settingsSchema = z.object({
   id: z.number(),
-  name: z.string().nonempty("الاسم مطلوب"),
-  email: z.email("البريد الالكتروني غير صحيح"),
-  phone_one: z.string().nonempty("رقم الهاتف مطلوب"),
-  phone_two: z
+  storeName: z.string().nonempty("الاسم مطلوب"),
+  phone1: z.string().nonempty("رقم الهاتف مطلوب"),
+  phone2: z
     .string()
     .refine((val) => val === "" || /^0[567]\d{8}$/.test(val), {
       message: "رقم الهاتف غير صحيح",
     })
     .optional(),
-  phone_three: z
+  phone3: z
     .string()
     .refine((val) => val === "" || /^\d+$/.test(val), {
       message: "رقم الهاتف غير صحيح",

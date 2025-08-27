@@ -1,15 +1,64 @@
+import type { SettingsSchemaType } from "@/schemas/settings.schema";
 import type { Setting } from "@/types/settings";
+import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
     settings: {
-      id: 1,
-      name: "monsef",
-      email: "monsef4566@gmail.com",
-      logo: "https://imgs.search.brave.com/UszzEkcE-A0fs0U5dgAoFXYDCJf-BDGvhSV7cfWLoNs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/ZnJvbnQuZnJlZXBp/ay5jb20vaG9tZS9h/bm9uLXJ2bXAvY3Jl/YXRpdmUtc3VpdGUv/YXVkaW8tY3JlYXRp/b24vdmlzdWFscy1z/b25ncy53ZWJw",
-      phone_one: "0123456789",
-      phone_two: "0123456789",
+      id: 0,
+      storeName: "",
+      logoUrl: "",
+      phone: "",
+      phone2: "",
+      phone3: "",
     } as Setting,
+
+    initialValues: {
+      id: 0,
+      storeName: "",
+      phone1: "",
+      phone2: "",
+      phone3: "",
+    } as SettingsSchemaType,
+
+    logoUrl: "",
+    previewedImage: "",
+
+    loading: false,
   }),
+
+  actions: {
+    async fetchSetting() {
+      this.loading = true;
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}settings`
+        );
+
+        this.settings = response.data.setting;
+
+        this.setInitialValues();
+      } catch (error: any) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    setInitialValues() {
+      this.initialValues = {
+        id: this.settings.id,
+        storeName: this.settings.storeName,
+        phone1: this.settings.phone,
+        phone2:
+          this.settings.phone2 === null ? undefined : this.settings.phone2,
+        phone3:
+          this.settings.phone3 === null ? undefined : this.settings.phone3,
+      };
+
+      this.logoUrl = this.settings.logoUrl;
+      this.previewedImage = this.settings.logoUrl;
+    },
+  },
 });

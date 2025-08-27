@@ -52,10 +52,10 @@
             <Tag
               v-for="color in slotProps.data.colors"
               :key="color.id"
-              :value="color.name"
+              :value="color.color.name"
               :style="{
-                backgroundColor: color.code,
-                color: getContrastColor(color.code),
+                backgroundColor: color.color.code,
+                color: getContrastColor(color.color.code),
               }"
             />
           </div>
@@ -116,7 +116,7 @@
     <Paginator
       class="mb-6!"
       :rows="limit"
-      :totalRecords="storeProduct.total"
+      :totalRecords="total"
       :rowsPerPageOptions="[5, 10, 15, 20]"
       @page="onPageChange"
     ></Paginator>
