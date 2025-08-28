@@ -260,4 +260,5 @@ export default defineComponent({
 <route lang="yaml">
 meta:
   layout: dashboard
+  requiresAuth: true
 </route>

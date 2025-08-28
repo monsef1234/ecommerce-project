@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10"
+      v-if="!loading && product.id"
+    >
       <div class="col-span-2">
         <Galleria
           :value="product.images"
@@ -280,16 +283,24 @@
             severity="success"
             label="اشتري الآن"
             size="large"
+            :loading="loadingSubmit"
+            :disabled="loadingSubmit"
           />
           <Button
             label="اضف للسلة"
             variant="outlined"
             size="large"
             @click="addToCart(product, $form)"
+            :disabled="loadingSubmit"
           />
         </Form>
       </div>
     </div>
+
+    <div v-if="loading">
+      <h2 class="text-2xl font-bold text-center">جاري التحميل...</h2>
+    </div>
+
     <Dialog
       v-model:visible="visible"
       modal
@@ -309,7 +320,7 @@
       </div>
     </Dialog>
 
-    <Toast position="bottom-center" class="toast-parent" />
+    <Toast position="bottom-center" dir="rtl" class="toast-parent" />
   </div>
 </template>
 
@@ -329,6 +340,7 @@ import { Form, type FormSubmitEvent } from "@primevue/forms";
 import zrExpress from "@/zr-express.json";
 
 import check from "@/assets/images/check.png";
+import axios from "axios";
 
 export default defineComponent({
   name: "Product",
@@ -338,9 +350,9 @@ export default defineComponent({
       product: {
         id: 0,
         title: "",
-        price: "",
+        price: 0,
         hasDiscount: false,
-        discountPrice: "",
+        discountPrice: 0,
         description: "",
         images: [],
         colors: [],
@@ -377,17 +389,57 @@ export default defineComponent({
         numVisible: number;
       }[],
 
+      loading: false,
+      loadingSubmit: false,
+
       resolver: zodResolver(checkoutSchema),
     };
   },
 
   methods: {
-    onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
+    async onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
       if (valid) {
-        console.log(states);
+        this.loadingSubmit = true;
+        try {
+          const order = {
+            fullname: states.fullname.value,
+            phone: states.phone.value,
+            address: states.address.value,
+            state: {
+              id: states.state.value.id,
+              state: states.state.value.wilaya,
+              home: states.state.value.home,
+              point: states.state.value.point,
+            },
+            delivery: states.delivery.value,
+            total: this.getTotalPrice(this.product, states),
+            products: [
+              {
+                quantity: states.quantity.value,
+                price: this.product.hasDiscount
+                  ? Number(this.product.discountPrice!)
+                  : Number(this.product.price),
+                productId: this.product.id,
+                title: this.product.title,
+                colorId: this.selectedColor,
+              },
+            ],
+          };
 
-        this.visible = true;
-        reset();
+          await axios.post(`${import.meta.env.VITE_API_URL}orders`, order);
+
+          this.visible = true;
+          reset();
+        } catch (error: any) {
+          this.$toast.add({
+            severity: "error",
+            summary: "خطأ",
+            detail: error.response?.data?.message || "حدث خطأ",
+            life: 3000,
+          });
+        } finally {
+          this.loadingSubmit = false;
+        }
       } else {
         const formRef = this.$refs.form as {
           $el: HTMLElement;
@@ -399,6 +451,28 @@ export default defineComponent({
           top,
           behavior: "smooth",
         });
+      }
+    },
+
+    async fetchProductById() {
+      this.loading = true;
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}products/${this.$route.params.id}`
+        );
+
+        this.product = response.data?.product;
+        this.selectedColor = this.product.colors[0].id;
+        console.log(this.product);
+      } catch (error: any) {
+        this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
+          life: 3000,
+        });
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -444,10 +518,7 @@ export default defineComponent({
   },
 
   mounted() {
-    const id = this.$route.params.id;
-
-    this.product = this.storeProduct.getProductById(Number(id)) ?? this.product;
-    this.selectedColor = this.product.colors[0].id;
+    this.fetchProductById();
   },
 });
 </script>

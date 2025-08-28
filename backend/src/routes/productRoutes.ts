@@ -7,15 +7,17 @@ import {
   deleteProduct,
   getProductById,
   updateProduct,
+  getLastProducts,
 } from "../controllers/productController";
 
 const router = Router();
 
 router.get("/", getAllProducts);
 router.get("/length", getLength);
+router.get("/last", getLastProducts);
+router.get("/:id", getProductById);
 router.post("/", upload.array("images", 10), createProduct);
 router.delete("/:id", deleteProduct);
-router.get("/:id", getProductById);
 router.put("/:id", upload.array("images", 10), updateProduct);
 
 export default router;

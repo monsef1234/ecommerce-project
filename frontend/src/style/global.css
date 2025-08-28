@@ -40,6 +40,12 @@
   padding: 16px !important;
 }
 
+.card img {
+  height: 350px !important;
+  object-fit: cover !important;
+  width: 100% !important;
+}
+
 @media screen and (max-width: 490px) {
   .toast {
     width: 300px !important;

@@ -13,7 +13,14 @@
     </Button>
 
     <router-link to="/">
-      <Image :src="logo" alt="Logo" width="120" />
+      <Image
+        :src="
+          storeSettings.logoUrl ||
+          'https://dummyimage.com/150x50/cccccc/000000&text=Logo'
+        "
+        :alt="storeSettings.settings.storeName"
+        width="150"
+      />
     </router-link>
 
     <OverlayBadge :value="storeCart.cart.length">
@@ -53,8 +60,7 @@
 import { defineComponent } from "vue";
 
 import { useCartStore } from "@/store/cart";
-
-import logo from "@/assets/images/logo.avif";
+import { useSettingsStore } from "@/store/settings";
 
 interface Link {
   name: string;
@@ -83,11 +89,11 @@ export default defineComponent({
 
   setup() {
     const storeCart = useCartStore();
+    const storeSettings = useSettingsStore();
 
     return {
       storeCart,
-
-      logo,
+      storeSettings,
     };
   },
 });

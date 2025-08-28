@@ -132,7 +132,6 @@ export const getAllProducts = async (req: Request, res: Response) => {
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
     const product = await prisma.product.findUnique({
       where: {
         id: Number(id),
@@ -146,19 +145,16 @@ export const getProductById = async (req: Request, res: Response) => {
         images: true,
       },
     });
-
     const formattedProduct = {
       ...product,
       colors: product?.colors.map((c) => c.color),
     };
-
     res.status(200).json({
       message: "تم جلب المنتج بنجاح",
       product: formattedProduct,
     });
   } catch (error) {
     console.error(error);
-
     res.status(500).json({
       message: "حدث خطأ أثناء جلب المنتج",
     });
@@ -303,6 +299,36 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     res.status(500).json({
       message: "حدث خطأ أثناء تحديث المنتج",
+    });
+  }
+};
+
+export const getLastProducts = async (req: Request, res: Response) => {
+  try {
+    const products = await prisma.product.findMany({
+      take: 4,
+      include: {
+        colors: {
+          include: {
+            color: true,
+          },
+        },
+        images: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json({
+      message: "تم جلب المنتجات بنجاح",
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "حدث خطأ أثناء جلب المنتجات",
     });
   }
 };

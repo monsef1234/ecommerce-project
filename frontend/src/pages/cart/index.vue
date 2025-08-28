@@ -227,6 +227,8 @@
           severity="success"
           label="اشتري الآن"
           size="large"
+          :disabled="loading"
+          :loading="loading"
         />
       </Form>
     </div>
@@ -274,6 +276,7 @@ import { checkoutSchema } from "@/schemas/checkout.schema";
 import zrExpress from "@/zr-express.json";
 
 import check from "@/assets/images/check.png";
+import axios from "axios";
 
 export default defineComponent({
   name: "Cart",
@@ -310,19 +313,57 @@ export default defineComponent({
       }[],
 
       visible: false as boolean,
+      loading: false as boolean,
 
       resolver: zodResolver(checkoutSchema),
     };
   },
 
   methods: {
-    onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
+    async onFormSubmit({ valid, states, reset }: FormSubmitEvent) {
       if (valid) {
-        console.log(states);
+        this.loading = true;
+        try {
+          const order = {
+            fullname: states.fullname.value,
+            phone: states.phone.value,
+            address: states.address.value,
+            state: {
+              id: states.state.value.id,
+              state: states.state.value.wilaya,
+              home: states.state.value.home,
+              point: states.state.value.point,
+            },
+            delivery: states.delivery.value,
+            total:
+              this.storeCart.getTotalPrice() +
+              (states.delivery.value === "home"
+                ? states.state?.value?.home
+                : states.state?.value?.point),
+            products: this.storeCart.cart.map((product) => ({
+              quantity: product.quantity,
+              price: product.hasDiscount
+                ? Number(product.discountPrice!)
+                : Number(product.price),
+              productId: product.id,
+              colorId: product.colorId,
+            })),
+          };
 
-        this.visible = true;
-        this.storeCart.reset;
-        reset();
+          await axios.post(`${import.meta.env.VITE_API_URL}orders`, order);
+
+          this.visible = true;
+          reset();
+        } catch (error: any) {
+          this.$toast.add({
+            severity: "error",
+            summary: "خطأ",
+            detail: error.response?.data?.message || "حدث خطأ",
+            life: 3000,
+          });
+        } finally {
+          this.loading = false;
+        }
       } else {
         const formRef = this.$refs.form as {
           $el: HTMLElement;

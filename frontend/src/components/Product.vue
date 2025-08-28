@@ -1,16 +1,13 @@
 <template>
   <Card
-    class="relative cursor-pointer"
+    class="relative cursor-pointer card"
     @click="$router.push(`/products/${product.id}`)"
   >
     <template #header>
-      <Image
-        alt="user header"
-        :src="product.images[0].url"
-      />
+      <Image alt="product image" :src="product.images[0].url" />
     </template>
     <template #title>
-      <span class="text-xl truncate block">{{ product.title }}</span>
+      <span class="text-xl truncate block text-black">{{ product.title }}</span>
     </template>
     <template #content>
       <p class="m-0 flex items-center flex-wrap gap-2 sm:gap-4">

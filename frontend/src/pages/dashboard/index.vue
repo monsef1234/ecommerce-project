@@ -43,20 +43,12 @@
       :rows="5"
       :rowsPerPageOptions="[5, 10, 15, 20]"
       tableStyle="min-width: 50rem"
+      @row-click="onRowClick"
+      :rowClass="() => 'cursor-pointer'"
     >
-      <Column field="img" header="Image">
+      <Column field="fullname" header="Fullname">
         <template #body="slotProps">
-          <img
-            :src="slotProps.data.img"
-            :alt="slotProps.data.img"
-            class="shadow-lg"
-            width="80"
-          />
-        </template>
-      </Column>
-      <Column field="name" header="Name">
-        <template #body="slotProps">
-          {{ slotProps.data.name }}
+          {{ slotProps.data.fullname }}
         </template>
       </Column>
       <Column field="phone" header="Phone">
@@ -64,29 +56,31 @@
           {{ slotProps.data.phone }}
         </template>
       </Column>
-      <Column field="quantity" header="Quantity" sortable>
+      <Column field="address" header="Address" sortable>
         <template #body="slotProps">
-          {{ slotProps.data.quantity }}
+          {{ slotProps.data.address }}
         </template>
       </Column>
-      <Column field="price" header="Price" sortable>
+      <Column field="total" header="Total" sortable>
         <template #body="slotProps">
           <span class="font-bold">{{
-            currencyFormat(Number(slotProps.data.price))
+            currencyFormat(Number(slotProps.data.total))
           }}</span>
         </template>
       </Column>
       <Column field="status" header="Status" sortable>
         <template #body="slotProps">
           <Tag
-            :value="slotProps.data.delivered ? 'Delivered' : 'Not Delivered'"
-            :severity="slotProps.data.delivered ? 'success' : 'danger'"
+            :value="slotProps.data.status"
+            :severity="
+              slotProps.data.status === 'Delivered' ? 'success' : 'danger'
+            "
           />
         </template>
       </Column>
-      <Column field="created_at" header="Created At" sortable>
+      <Column field="createdAt" header="Created At" sortable>
         <template #body="slotProps">
-          {{ format(slotProps.data.created_at, "dd/MM/yyyy, HH:mm") }}
+          {{ format(slotProps.data.createdAt, "dd/MM/yyyy, HH:mm") }}
         </template>
       </Column>
       <Column field="actions" header="Actions">
@@ -99,7 +93,7 @@
             @click="deleteOrder(slotProps.data)"
           />
           <Button
-            v-if="!slotProps.data.delivered"
+            v-if="slotProps.data.status !== 'Delivered'"
             icon="pi pi-check"
             class="p-button-success"
             aria-label="Delivered"
@@ -118,6 +112,23 @@
       </Column>
     </DataTable>
 
+    <Dialog
+      v-model:visible="visible"
+      :modal="true"
+      :closable="false"
+      :dismissableMask="true"
+    >
+      <p>{{ order?.fullname }}</p>
+      <p>{{ order?.phone }}</p>
+      <p>{{ order?.address }}</p>
+      <p>{{ order?.status }}</p>
+      <p>{{ order?.state?.state }}</p>
+      <p>{{ order?.delivery }}</p>
+      <p>{{ order?.total }}</p>
+      <p>{{ order?.products }}</p>
+      <p>{{ order?.createdAt }}</p>
+    </Dialog>
+
     <Toast position="bottom-center" />
   </div>
 </template>
@@ -128,16 +139,33 @@ import { defineComponent } from "vue";
 import { format } from "date-fns";
 
 import { currencyFormat } from "@/utilities/currencyFormat";
+import type { DataTableRowClickEvent } from "primevue";
+import type { Color } from "@/types/color";
+import type { Product } from "@/types/Product";
 
 interface Order {
-  img: string;
-  name: string;
+  fullname: string;
   phone: string;
-  quantity: number;
-  price: number;
-  status: "Delivered" | "Not Delivered";
-  delivered: boolean;
-  created_at: string;
+  address: string;
+  status: string;
+  state: {
+    id: string;
+    state: string;
+    home: string;
+    point: string;
+  };
+  delivery: "home" | "point";
+  total: number;
+  products: {
+    quantity: number;
+    price: number;
+    productId: string;
+    title: string;
+    colorId: string;
+    color: Color;
+    product: Product;
+  }[];
+  createdAt?: string;
 }
 
 export default defineComponent({
@@ -147,57 +175,34 @@ export default defineComponent({
     return {
       isCollapsed: false,
 
+      visible: false,
+
+      order: {} as Order,
+
       orders: [
         {
-          img: "https://imgs.search.brave.com/_6izdbSVpHbwqbawMBquENAqLf6WtvwCZmTG8AhitpY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/ZnJvbnQuZnJlZXBp/ay5jb20vaG9tZS9h/bm9uLXJ2bXAvY3Jl/YXRpdmUtc3VpdGUv/cGhvdG9ncmFwaHkv/Y2hhbmdlLWxvY2F0/aW9uLndlYnA",
-          name: "Product 1",
+          fullname: "Johsdsdn Doe",
           phone: "0123456789",
-          quantity: 10,
-          price: 100,
+          address: "123 Main St",
           status: "Delivered",
-          delivered: true,
-          created_at: "2025-08-17T17:59:00.000Z",
-        },
-
-        {
-          img: "https://imgs.search.brave.com/_6izdbSVpHbwqbawMBquENAqLf6WtvwCZmTG8AhitpY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/ZnJvbnQuZnJlZXBp/ay5jb20vaG9tZS9h/bm9uLXJ2bXAvY3Jl/YXRpdmUtc3VpdGUv/cGhvdG9ncmFwaHkv/Y2hhbmdlLWxvY2F0/aW9uLndlYnA",
-          name: "Product 2",
-          phone: "0123456789",
-          quantity: 10,
-          status: "Not Delivered",
-          delivered: false,
-          price: 150,
-          created_at: "2025-08-17T17:56:00.000Z",
-        },
-        {
-          img: "https://imgs.search.brave.com/_6izdbSVpHbwqbawMBquENAqLf6WtvwCZmTG8AhitpY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/ZnJvbnQuZnJlZXBp/ay5jb20vaG9tZS9h/bm9uLXJ2bXAvY3Jl/YXRpdmUtc3VpdGUv/cGhvdG9ncmFwaHkv/Y2hhbmdlLWxvY2F0/aW9uLndlYnA",
-          name: "Product 3",
-          phone: "0123456789",
-          quantity: 10,
-          status: "Not Delivered",
-          delivered: false,
-          price: 200,
-          created_at: "2025-08-17T17:56:00.000Z",
-        },
-        {
-          img: "https://imgs.search.brave.com/_6izdbSVpHbwqbawMBquENAqLf6WtvwCZmTG8AhitpY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/ZnJvbnQuZnJlZXBp/ay5jb20vaG9tZS9h/bm9uLXJ2bXAvY3Jl/YXRpdmUtc3VpdGUv/cGhvdG9ncmFwaHkv/Y2hhbmdlLWxvY2F0/aW9uLndlYnA",
-          name: "Product 4",
-          phone: "0123456789",
-          quantity: 10,
-          status: "Not Delivered",
-          delivered: false,
-          price: 250,
-          created_at: "2025-08-17T17:56:00.000Z",
-        },
-        {
-          img: "https://imgs.search.brave.com/_6izdbSVpHbwqbawMBquENAqLf6WtvwCZmTG8AhitpY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/ZnJvbnQuZnJlZXBp/ay5jb20vaG9tZS9h/bm9uLXJ2bXAvY3Jl/YXRpdmUtc3VpdGUv/cGhvdG9ncmFwaHkv/Y2hhbmdlLWxvY2F0/aW9uLndlYnA",
-          name: "Product 5",
-          phone: "0123456789",
-          quantity: 10,
-          status: "Not Delivered",
-          delivered: false,
-          price: 300,
-          created_at: "2025-08-17T17:56:00.000Z",
+          state: {
+            id: "1",
+            state: "Main",
+            home: "123 Main St",
+            point: "123 Main St",
+          },
+          delivery: "home",
+          total: 100,
+          products: [
+            {
+              quantity: 10,
+              price: 100,
+              productId: "1",
+              title: "Product 1",
+              colorId: "1",
+            },
+          ],
+          createdAt: "2022-01-01T00:00:00.000Z",
         },
       ] as Order[],
     };
@@ -237,19 +242,24 @@ export default defineComponent({
         life: 3000,
       });
     },
+
+    onRowClick(event: DataTableRowClickEvent<Order>) {
+      this.visible = true;
+      this.order = event.data;
+    },
   },
 
   computed: {
     deliveredOrders() {
-      return this.orders.filter((order) => order.delivered);
+      return this.orders.filter((order) => order.status === "Delivered");
     },
 
     notDeliveredOrders() {
-      return this.orders.filter((order) => !order.delivered);
+      return this.orders.filter((order) => order.status !== "Delivered");
     },
 
     revenue() {
-      return this.orders.reduce((total, order) => total + order.price, 0);
+      return this.orders.reduce((total, order) => total + order.total, 0);
     },
   },
 

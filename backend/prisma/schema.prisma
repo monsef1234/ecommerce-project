@@ -20,6 +20,7 @@ model Product {
   discountPrice Float?
   images    Image[]
   colors    ProductColors[]
+  orders    OrderProducts[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -42,6 +43,7 @@ model Color {
   name      String
   code      String
   products  ProductColors[]
+  orders    OrderProducts[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -76,13 +78,29 @@ model Order {
   fullname String
   phone String
   address String
-  quantity Int
-  price Float
   delivery String
-  state String
+  state Json
   total Float
+  products OrderProducts[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("orders")
 }
+
+model OrderProducts {
+    orderId Int
+    productId Int
+    colorId Int
+    quantity Int
+    price Float
+    product Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    color Color @relation(fields: [colorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@id([orderId, productId, colorId])
+
+    @@map("order_products")
+}
+
+

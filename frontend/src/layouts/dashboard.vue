@@ -250,7 +250,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import logo from "@/assets/images/logo.avif";
 import { useSettingsStore } from "@/store/settings";
 import { useAuthStore } from "@/store/auth";
 import supabase from "@/supabase";
@@ -336,13 +335,8 @@ export default defineComponent({
 
     return {
       settingsStore,
-      logo,
       authStore,
     };
-  },
-
-  mounted() {
-    this.settingsStore.fetchSetting();
   },
 });
 </script>

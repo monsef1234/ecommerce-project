@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import colorRoutes from "./routes/colorRoutes";
 import productRoutes from "./routes/productRoutes";
 import settingRoutes from "./routes/settingRoutes";
+import orderRoutes from "./routes/orderRoutes";
 import cors from "cors";
 
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(cors());
 app.use("/colors", colorRoutes);
 app.use("/products", productRoutes);
 app.use("/settings", settingRoutes);
+app.use("/orders", orderRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

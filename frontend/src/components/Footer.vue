@@ -1,7 +1,13 @@
 <template>
   <footer class="bg-black text-white py-10 text-center">
     <h3 class="text-xl">اتصلو بنا على</h3>
-    <span class="text-lg font-bold my-6 block">0650000000</span>
+    <span
+      class="text-lg font-bold my-6 block"
+      v-for="phone in phones.filter((p) => p)"
+      :key="phone"
+    >
+      {{ phone }}
+    </span>
     <div class="social-media">
       <Button
         icon="pi pi-facebook"
@@ -33,3 +39,30 @@
     </div>
   </footer>
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import { useSettingsStore } from "@/store/settings";
+
+export default defineComponent({
+  name: "Footer",
+
+  computed: {
+    phones() {
+      return [
+        this.settingsStore.settings?.phone,
+        this.settingsStore.settings?.phone2,
+        this.settingsStore.settings?.phone3,
+      ];
+    },
+  },
+
+  setup() {
+    const settingsStore = useSettingsStore();
+
+    return {
+      settingsStore,
+    };
+  },
+});
+</script>
