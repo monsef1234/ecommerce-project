@@ -28,9 +28,9 @@ const orderSchema = z.object({
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const { fullname, phone, address, delivery, state, total } =
-      orderSchema.parse(req.body);
+      orderSchema.parse(req.body) as z.infer<typeof orderSchema>;
 
-    const { products } = req.body;
+    const { products } = req.body as { products: any[] };
 
     await prisma.order.create({
       data: {
@@ -71,9 +71,57 @@ export const createOrder = async (req: Request, res: Response) => {
   }
 };
 
+export const updateOrderStatus = async (req: Request, res: Response) => {
+  try {
+    const { id, status } = req.body as { id: number; status: string };
+
+    await prisma.order.update({
+      where: {
+        id,
+      },
+      data: {
+        status,
+      },
+    });
+
+    res.status(200).json({
+      message: "تم تحديث حالة الطلب بنجاح",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "حدث خطأ أثناء تحديث حالة الطلب",
+    });
+  }
+};
+
+export const deleteOrder = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+
+    await prisma.order.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    res.status(200).json({
+      message: "تم حذف الطلب بنجاح",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "حدث خطأ أثناء حذف الطلب",
+    });
+  }
+};
+
 export const getOrders = async (req: Request, res: Response) => {
+  const { skip, limit } = req.query as { skip: string; limit: string };
   try {
     const orders = await prisma.order.findMany({
+      take: Number(limit),
+      skip: Number(skip),
       include: {
         products: {
           include: {
@@ -92,6 +140,81 @@ export const getOrders = async (req: Request, res: Response) => {
     console.error(error);
     res.status(500).json({
       message: "حدث خطأ أثناء جلب الطلبات",
+    });
+  }
+};
+
+export const getAllOrdersCount = async (req: Request, res: Response) => {
+  try {
+    const count = await prisma.order.count();
+    res.status(200).json({
+      message: "تم جلب عدد الطلبات بنجاح",
+      count,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "حدث خطأ أثناء جلب عدد الطلبات",
+    });
+  }
+};
+
+export const getDeliveredOrdersCount = async (req: Request, res: Response) => {
+  try {
+    const count = await prisma.order.count({
+      where: {
+        status: "delivered",
+      },
+    });
+    res.status(200).json({
+      message: "تم جلب عدد الطلبات المكتملة بنجاح",
+      count,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "حدث خطأ أثناء جلب عدد الطلبات المكتملة",
+    });
+  }
+};
+
+export const getNotDeliveredOrdersCount = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const count = await prisma.order.count({
+      where: {
+        status: "not_delivered",
+      },
+    });
+    res.status(200).json({
+      message: "تم جلب عدد الطلبات غير المكتملة بنجاح",
+      count,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "حدث خطأ أثناء جلب عدد الطلبات غير المكتملة",
+    });
+  }
+};
+
+export const getAllOrdersPriceTotal = async (req: Request, res: Response) => {
+  try {
+    const total = await prisma.order.aggregate({
+      _sum: {
+        total: true,
+      },
+    });
+    res.status(200).json({
+      message: "تم جلب إجمالي سعر الطلبات بنجاح",
+      total: total._sum.total,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "حدث خطأ أثناء جلب إجمالي سعر الطلبات",
     });
   }
 };

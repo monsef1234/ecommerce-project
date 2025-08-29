@@ -45,7 +45,7 @@ const productSchema = z
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const { title, price, description, hasDiscount, discountPrice, colors } =
-      productSchema.parse(req.body);
+      productSchema.parse(req.body) as z.infer<typeof productSchema>;
 
     const imagesData = [];
 
@@ -101,7 +101,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const { skip, limit } = req.query;
+    const { skip, limit } = req.query as { skip: string; limit: string };
 
     const products = await prisma.product.findMany({
       include: {
@@ -131,7 +131,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
 
 export const getProductById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const product = await prisma.product.findUnique({
       where: {
         id: Number(id),
@@ -180,7 +180,7 @@ export const getLength = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as {id: string};
 
     await prisma.product.delete({
       where: {
@@ -202,7 +202,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
 export const updateProduct = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
 
     const {
       title,

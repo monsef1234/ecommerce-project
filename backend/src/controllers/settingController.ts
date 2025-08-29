@@ -43,7 +43,9 @@ export const getSetting = async (req: Request, res: Response) => {
 
 export const updateSetting = async (req: Request, res: Response) => {
   try {
-    const { storeName, phone, phone2, phone3 } = settingsSchema.parse(req.body);
+    const { storeName, phone, phone2, phone3 } = settingsSchema.parse(
+      req.body
+    ) as z.infer<typeof settingsSchema>;
     const logo = req.file as Express.Multer.File;
 
     let publicUrl = "";

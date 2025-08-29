@@ -79,6 +79,7 @@ model Order {
   phone String
   address String
   delivery String
+  status String @default("not_delivered")
   state Json
   total Float
   products OrderProducts[]

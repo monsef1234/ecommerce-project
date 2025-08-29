@@ -24,7 +24,7 @@ export const getAllColors = async (req: Request, res: Response) => {
 
 export const createColor = async (req: Request, res: Response) => {
   try {
-    const { name, code } = colorSchema.parse(req.body);
+    const { name, code } = colorSchema.parse(req.body) as z.infer<typeof colorSchema>;
     const find = await prisma.color.findFirst({
       where: {
         OR: [
@@ -71,7 +71,7 @@ export const createColor = async (req: Request, res: Response) => {
 
 export const deleteColor = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
 
     const color = await prisma.color.delete({
       where: {
