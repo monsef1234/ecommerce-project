@@ -319,8 +319,6 @@ export default defineComponent({
           `${import.meta.env.VITE_API_URL}products/${this.$route.params.id}`
         );
 
-        console.log(response);
-
         this.product = response.data?.product || null;
       } catch (error: any) {
         this.$toast.add({
@@ -394,9 +392,6 @@ export default defineComponent({
         description: form.description?.value,
         colors: form.colors?.value,
       } as ProductSchemaType;
-
-      console.log(this.normalizeProduct(filterFormValues));
-      console.log(this.normalizeProduct(this.initialValues));
 
       return isEqual(
         this.normalizeProduct(filterFormValues),

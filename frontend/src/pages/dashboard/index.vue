@@ -237,12 +237,9 @@ export default defineComponent({
 
   methods: {
     async deleteOrder(id: number) {
-      console.log(id);
-
       try {
         await axios.delete(`${import.meta.env.VITE_API_URL}orders/${id}`);
-        console.log("done");
-
+        
         this.ordersCount--;
         this.totalPrice -= this.orders.find((p) => p.id === id)?.total || 0;
         this.deliveredOrdersCount -=

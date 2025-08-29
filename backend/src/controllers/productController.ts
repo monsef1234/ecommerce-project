@@ -214,8 +214,6 @@ export const updateProduct = async (req: Request, res: Response) => {
       deletedImages,
     } = productSchema.parse(req.body);
 
-    console.log(colors);
-
     if (deletedImages && deletedImages.length > 0) {
       await prisma.product.update({
         where: {

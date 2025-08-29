@@ -463,7 +463,6 @@ export default defineComponent({
 
         this.product = response.data?.product;
         this.selectedColor = this.product.colors[0].id;
-        console.log(this.product);
       } catch (error: any) {
         this.$toast.add({
           severity: "error",

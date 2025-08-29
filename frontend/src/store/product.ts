@@ -17,8 +17,6 @@ export const useProductStore = defineStore("product", {
     },
 
     editProduct(product: Product) {
-      console.log(product);
-
       this.products = this.products.map((p) =>
         p.id === product.id ? product : p
       );

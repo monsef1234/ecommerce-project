@@ -86,7 +86,6 @@ export default defineComponent({
         );
 
         this.products = response.data.products;
-        console.log(response.data.products);
       } catch (error) {
         console.error(error);
       } finally {
