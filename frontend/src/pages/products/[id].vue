@@ -320,7 +320,11 @@
       </div>
     </Dialog>
 
-    <Toast position="bottom-center" dir="rtl" class="toast-parent" />
+    <Toast
+      position="bottom-center"
+      dir="rtl"
+      class="w-2xs! md:w-1/4! text-lg! md:text-xl!"
+    />
   </div>
 </template>
 

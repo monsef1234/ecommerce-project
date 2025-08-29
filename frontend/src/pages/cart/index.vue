@@ -347,6 +347,7 @@ export default defineComponent({
                 : Number(product.price),
               productId: product.id,
               colorId: product.colorId,
+              title: product.title,
             })),
           };
 

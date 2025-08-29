@@ -42,7 +42,7 @@ export const sendOrderEmail = async (order: any) => {
         }</p>
         <p><b>الإجمالي:</b> ${currencyFormat(order.total)}</p>
 
-        <a href="http://localhost:5173/dashboard/">التفاصيل</a>
+        <a href="https://ecommerce-project-iota-one.vercel.app/dashboard">التفاصيل</a>
       `,
   });
 };
