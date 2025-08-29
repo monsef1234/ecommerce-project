@@ -17,10 +17,7 @@
       </template>
 
       <template #empty>
-        <div
-          class="text-center"
-          v-if="!loading && !storeProduct.products.length"
-        >
+        <div class="text-center" v-if="!loading && !products.length">
           <p class="text-lg font-bold">لا يوجد منتجات</p>
         </div>
       </template>
@@ -131,7 +128,6 @@ import { defineComponent } from "vue";
 import type { Product } from "@/types/Product";
 import { currencyFormat } from "@/utilities/currencyFormat";
 import { format } from "date-fns";
-import { useProductStore } from "@/store/product";
 import axios from "axios";
 import type { PageState } from "primevue";
 
@@ -239,10 +235,7 @@ export default defineComponent({
   },
 
   setup() {
-    const storeProduct = useProductStore();
-
     return {
-      storeProduct,
       currencyFormat,
       format,
     };

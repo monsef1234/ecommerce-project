@@ -59,6 +59,16 @@
         ></ProgressBar>
       </template>
 
+      
+      <template #empty>
+        <div
+          class="text-center"
+          v-if="!loading && !orders.length"
+        >
+          <p class="text-lg font-bold">لا يوجد طلبات</p>
+        </div>
+      </template>
+
       <Column field="fullname" header="Fullname">
         <template #body="slotProps">
           {{ slotProps.data.fullname }}

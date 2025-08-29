@@ -147,6 +147,7 @@
             @click="removeImage(index)"
             variant="outlined"
             severity="danger"
+            :disabled="image.progress < 100"
           />
         </div>
       </div>

@@ -6,7 +6,7 @@ import { z } from "zod";
 
 const settingsSchema = z.object({
   storeName: z.string().nonempty("الاسم مطلوب"),
-  phone: z
+  phone1: z
     .string()
     .refine((val) => /^0[567]\d{8}$/.test(val), {
       message: "رقم الهاتف غير صحيح",
@@ -43,7 +43,7 @@ export const getSetting = async (req: Request, res: Response) => {
 
 export const updateSetting = async (req: Request, res: Response) => {
   try {
-    const { storeName, phone, phone2, phone3 } = settingsSchema.parse(
+    const { storeName, phone1, phone2, phone3 } = settingsSchema.parse(
       req.body
     ) as z.infer<typeof settingsSchema>;
     const logo = req.file as Express.Multer.File;
@@ -80,7 +80,7 @@ export const updateSetting = async (req: Request, res: Response) => {
       },
       data: {
         storeName,
-        phone,
+        phone: phone1,
         phone2: phone2 || null,
         phone3: phone3 || null,
         ...(publicUrl.trim() !== "" && { logoUrl: publicUrl }),
