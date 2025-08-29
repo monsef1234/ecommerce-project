@@ -130,10 +130,17 @@
           class="flex items-center gap-2"
         >
           <Image
-            :src="image"
+            :src="image.url"
+            v-if="image.url"
             alt="Image"
             class="shadow-md rounded-xl sm:w-80 w-full"
           />
+
+          <span
+            v-if="image.progress && image.progress < 100"
+            class="text-xs ml-1 font-bold"
+            >{{ image.progress }}%</span
+          >
 
           <Button
             icon="pi pi-times"
@@ -150,7 +157,9 @@
         icon="pi pi-pencil"
         variant="filled"
         :disabled="
-          (isProductUpdated($form) && isImagesUpdated) || updateLoading
+          (isProductUpdated($form) && isImagesUpdated) ||
+          updateLoading ||
+          previewedImages.some((i) => i.progress < 100)
         "
         :loading="updateLoading"
       />
@@ -184,6 +193,7 @@ import { sortBy } from "lodash";
 import axios from "axios";
 import type { FileUploadSelectEvent } from "primevue";
 import type { Color } from "@/types/color";
+import imageCompression from "browser-image-compression";
 
 export default defineComponent({
   name: "EditProduct",
@@ -203,7 +213,7 @@ export default defineComponent({
       newImages: [] as File[],
       deletedImages: [] as { id: number }[],
 
-      previewedImages: [] as string[],
+      previewedImages: [] as { url: string; progress: number }[],
 
       product: null as Product | null,
       colors: [] as Color[],
@@ -337,10 +347,7 @@ export default defineComponent({
     },
 
     onFileSelect(event: FileUploadSelectEvent) {
-      if (
-        (this.product?.images.length ?? 0) + this.newImages.length >= 10 ||
-        event.files.length > 10
-      ) {
+      if (this.newImages.length >= 10 || event.files.length > 10) {
         return this.$toast.add({
           severity: "error",
           summary: "خطأ",
@@ -349,24 +356,33 @@ export default defineComponent({
         });
       }
 
-      this.newImages.push(...event.files);
+      event.files.forEach(async (file: File) => {
+        const imageEntry = reactive({
+          url: "",
+          progress: 0,
+        } as { url: string; progress: number });
 
-      event.files.forEach((file: File) => {
-        const reader = new FileReader();
+        this.previewedImages.push(imageEntry);
 
-        reader.onload = (e) => {
-          this.previewedImages.push(e.target?.result as string);
-        };
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1024,
+          onProgress: (progress) => {
+            imageEntry.progress = progress;
+          },
+        });
 
-        reader.readAsDataURL(file);
+        imageEntry.url = URL.createObjectURL(compressedFile);
+
+        this.newImages.push(compressedFile);
       });
     },
 
     removeImage(index: number) {
-      if (!this.previewedImages[index].startsWith("data:image")) {
-        this.deletedImages.push({ id: this.product?.images[index].id || 0 });
+      if (!this.previewedImages[index].url.startsWith("data:image")) {
+        this.deletedImages.push({ id: this.product?.images[index]?.id || 0 });
       } else {
-        const newIdx = index - (this.product?.images.length ?? 0);
+        const newIdx = index - (this.product?.images?.length ?? 0);
         if (newIdx >= 0 && newIdx < this.newImages.length) {
           this.newImages.splice(newIdx, 1);
         }
@@ -415,7 +431,10 @@ export default defineComponent({
         } as ProductSchemaType;
 
         this.previewedImages =
-          this.product?.images.map((image) => image.url) || [];
+          this.product?.images.map((image) => ({
+            url: image.url,
+            progress: 0,
+          })) || [];
       }
     },
   },
@@ -423,7 +442,10 @@ export default defineComponent({
   computed: {
     isImagesUpdated() {
       const images = this.product?.images.map((image) => image.url);
-      return isEqual(this.previewedImages, images);
+      return isEqual(
+        this.previewedImages.map((image) => image.url),
+        images
+      );
     },
   },
 

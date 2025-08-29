@@ -1,6 +1,5 @@
 import { type Request, type Response } from "express";
 import prisma from "../prisma/client";
-import sharp from "sharp";
 import { supabase } from "../utils/supabaseClient";
 import { z } from "zod";
 
@@ -47,28 +46,30 @@ export const createProduct = async (req: Request, res: Response) => {
     const { title, price, description, hasDiscount, discountPrice, colors } =
       productSchema.parse(req.body) as z.infer<typeof productSchema>;
 
-    const imagesData = [];
+    const imagesData = await Promise.all(
+      (req.files as Express.Multer.File[]).map(async (file) => {
+        const filename =
+          Date.now() +
+          "-" +
+          Math.round(Math.random() * 1e9) +
+          "." +
+          file.mimetype?.split("/")[1];
 
-    for (const file of req.files as Express.Multer.File[]) {
-      const filename =
-        Date.now() + "-" + Math.round(Math.random() * 1e9) + ".webp";
+        const { data, error } = await supabase.storage
+          .from("product_images")
+          .upload(filename, file.buffer);
 
-      const Buffer = await sharp(file.buffer).webp({ quality: 70 }).toBuffer();
+        if (error) {
+          throw error;
+        }
 
-      const { data, error } = await supabase.storage
-        .from("product_images")
-        .upload(filename, Buffer);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("product_images").getPublicUrl(data?.path!);
 
-      if (error) {
-        throw error;
-      }
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("product_images").getPublicUrl(data?.path!);
-
-      imagesData.push({ url: publicUrl });
-    }
+        return { url: publicUrl };
+      })
+    );
 
     const product = await prisma.product.create({
       data: {
@@ -180,7 +181,7 @@ export const getLength = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params as {id: string};
+    const { id } = req.params as { id: string };
 
     await prisma.product.delete({
       where: {
@@ -231,20 +232,18 @@ export const updateProduct = async (req: Request, res: Response) => {
       });
     }
 
-    let imagesData = [];
-
-    if (req.files && (req.files as Express.Multer.File[]).length > 0) {
-      for (const file of req.files as Express.Multer.File[]) {
+    const imagesData = await Promise.all(
+      (req.files as Express.Multer.File[]).map(async (file) => {
         const filename =
-          Date.now() + "-" + Math.round(Math.random() * 1e9) + ".webp";
-
-        const Buffer = await sharp(file.buffer)
-          .webp({ quality: 70 })
-          .toBuffer();
+          Date.now() +
+          "-" +
+          Math.round(Math.random() * 1e9) +
+          "." +
+          file.mimetype?.split("/")[1];
 
         const { data, error } = await supabase.storage
           .from("product_images")
-          .upload(filename, Buffer);
+          .upload(filename, file.buffer);
 
         if (error) {
           throw error;
@@ -254,9 +253,9 @@ export const updateProduct = async (req: Request, res: Response) => {
           data: { publicUrl },
         } = supabase.storage.from("product_images").getPublicUrl(data?.path!);
 
-        imagesData.push({ url: publicUrl });
-      }
-    }
+        return { url: publicUrl };
+      })
+    );
 
     await prisma.product.update({
       where: {

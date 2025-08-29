@@ -117,13 +117,20 @@
         <div
           v-for="(image, index) in previewedImages"
           :key="index"
-          class="flex items-center gap-2"
+          class="flex items-center gap-2 previewedImages"
         >
           <Image
-            :src="image"
+            :src="image.url"
+            v-if="image.url"
             alt="Image"
             class="shadow-md rounded-xl sm:w-80 w-full"
           />
+
+          <span
+            v-if="image.progress && image.progress < 100"
+            class="text-xs ml-1 font-bold"
+            >{{ image.progress }}%</span
+          >
 
           <Button
             icon="pi pi-times"
@@ -140,7 +147,9 @@
         icon="pi pi-plus"
         variant="filled"
         :loading="loading"
-        :disabled="loading"
+        :disabled="
+          loading || previewedImages.some((image) => image.progress < 100)
+        "
       />
     </Form>
     <Toast dir="rtl" class="w-3xs! md:w-1/4! text-lg! md:text-xl!" />
@@ -159,6 +168,7 @@ import {
 import type { Color } from "@/types/color";
 import axios from "axios";
 import type { FileUploadSelectEvent } from "primevue";
+import imageCompression from "browser-image-compression";
 
 export default defineComponent({
   name: "AddProduct",
@@ -181,7 +191,7 @@ export default defineComponent({
       colors: [] as Color[],
 
       files: [] as File[],
-      previewedImages: [] as string[],
+      previewedImages: [] as { url: string; progress: number }[],
 
       loading: false,
       loadingColors: false,
@@ -290,16 +300,25 @@ export default defineComponent({
         });
       }
 
-      this.files.push(...event.files);
+      event.files.forEach(async (file: File) => {
+        const imageEntry = reactive({
+          url: "",
+          progress: 0,
+        } as { url: string; progress: number });
 
-      event.files.forEach((file: File) => {
-        const reader = new FileReader();
+        this.previewedImages.push(imageEntry);
 
-        reader.onload = (e) => {
-          this.previewedImages.push(e.target?.result as string);
-        };
+        const compressedFile = await imageCompression(file, {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1024,
+          onProgress: (progress) => {
+            imageEntry.progress = progress;
+          },
+        });
 
-        reader.readAsDataURL(file);
+        imageEntry.url = URL.createObjectURL(compressedFile);
+
+        this.files.push(compressedFile);
       });
     },
 
