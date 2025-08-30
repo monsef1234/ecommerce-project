@@ -85,6 +85,7 @@ export const createProduct = async (req: Request, res: Response) => {
         price: parseFloat(price),
         description,
         hasDiscount,
+        status,
         discountPrice: discountPrice ? parseFloat(discountPrice) : null,
         colors: {
           create: colors.map((id: string) => ({
@@ -94,7 +95,6 @@ export const createProduct = async (req: Request, res: Response) => {
         images: {
           create: imagesData,
         },
-        status,
       },
     });
 

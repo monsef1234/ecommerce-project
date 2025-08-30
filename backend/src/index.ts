@@ -13,7 +13,12 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://ecommerce-project-iota-one.vercel.app",
+    credentials: true,
+  })
+);
 
 app.use("/api/colors", colorRoutes);
 app.use("/api/products", productRoutes);
