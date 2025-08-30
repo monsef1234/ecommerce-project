@@ -9,6 +9,7 @@ import { definePreset } from "@primeuix/themes";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
 import Tooltip from "primevue/tooltip";
+import { inject } from "@vercel/analytics";
 
 import "primeicons/primeicons.css";
 import "./style/global.css";
@@ -73,6 +74,8 @@ const BlackWhitePreset = definePreset(Aura, {
     },
   },
 });
+
+inject();
 
 const app = createApp(App);
 
