@@ -15,7 +15,11 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://ecommerce-project-iota-one.vercel.app",
+    origin: [
+      "https://ecommerce-project-iota-one.vercel.app",
+      "https://www.mysouqdz.store",
+      "https://mysouqdz.store",
+    ],
     credentials: true,
   })
 );
