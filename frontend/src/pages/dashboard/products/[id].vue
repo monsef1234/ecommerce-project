@@ -90,6 +90,9 @@
       <div class="flex items-center gap-4">
         <label for="hasDiscount" class="text-lg">هل هناك خصم؟</label>
         <ToggleSwitch name="hasDiscount" input-id="hasDiscount" />
+        <span class="text-lg">{{
+          $form.hasDiscount?.value ? "نعم" : "لا"
+        }}</span>
       </div>
 
       <div v-if="$form.hasDiscount?.value" class="flex flex-col gap-1">
@@ -108,6 +111,12 @@
           variant="simple"
           >{{ $form.discountPrice.error.message }}</Message
         >
+      </div>
+
+      <div class="flex items-center gap-4">
+        <label for="status" class="text-lg">هل المنتج متاح؟</label>
+        <ToggleSwitch name="status" input-id="status" />
+        <span class="text-lg">{{ $form.status?.value ? "نعم" : "لا" }}</span>
       </div>
 
       <FileUpload
@@ -147,7 +156,6 @@
             @click="removeImage(index)"
             variant="outlined"
             severity="danger"
-            :disabled="image.progress < 100"
           />
         </div>
       </div>
@@ -158,9 +166,7 @@
         icon="pi pi-pencil"
         variant="filled"
         :disabled="
-          (isProductUpdated($form) && isImagesUpdated) ||
-          updateLoading ||
-          previewedImages.some((i) => i.progress < 100)
+          (isProductUpdated($form) && isImagesUpdated) || updateLoading
         "
         :loading="updateLoading"
       />
@@ -208,6 +214,7 @@ export default defineComponent({
         hasDiscount: false,
         discountPrice: "",
         description: "",
+        status: true,
         colors: [],
       } as ProductSchemaType,
 
@@ -245,6 +252,7 @@ export default defineComponent({
           formData.append("title", states.title.value);
           formData.append("price", states.price.value);
           formData.append("hasDiscount", String(states.hasDiscount.value));
+          formData.append("status", String(states.status.value));
           if (states.discountPrice?.value) {
             formData.append("discountPrice", states.discountPrice.value);
           }
@@ -406,9 +414,13 @@ export default defineComponent({
         price: form.price?.value,
         hasDiscount: form.hasDiscount?.value,
         discountPrice: form.discountPrice?.value,
+        status: form.status?.value,
         description: form.description?.value,
         colors: form.colors?.value,
       } as ProductSchemaType;
+
+      console.log(filterFormValues);
+      console.log(this.initialValues);
 
       return isEqual(
         this.normalizeProduct(filterFormValues),
@@ -423,6 +435,7 @@ export default defineComponent({
           title: this.product?.title,
           price: String(this.product?.price),
           hasDiscount: this.product?.hasDiscount,
+          status: this.product?.status,
           discountPrice:
             this.product?.discountPrice === null
               ? undefined

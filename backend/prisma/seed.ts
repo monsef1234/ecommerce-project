@@ -23,6 +23,7 @@ async function main() {
       price: 100,
       description: "Description 1",
       hasDiscount: false,
+      status: true,
       images: {
         create: [
           {

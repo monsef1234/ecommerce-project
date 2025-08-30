@@ -8,6 +8,7 @@ import {
   getProductById,
   updateProduct,
   getLastProducts,
+  toggleProductStatus,
 } from "../controllers/productController";
 
 const router = Router();
@@ -19,5 +20,6 @@ router.get("/:id", getProductById);
 router.post("/", upload.array("images", 10), createProduct);
 router.delete("/:id", deleteProduct);
 router.put("/:id", upload.array("images", 10), updateProduct);
+router.put("/:id/status", toggleProductStatus);
 
 export default router;

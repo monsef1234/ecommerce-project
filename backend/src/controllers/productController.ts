@@ -21,6 +21,7 @@ const productSchema = z
       .min(10, "الوصف يجب أن يكون أكثر من 10 حروف"),
     discountPrice: z.string().optional(),
     colors: z.array(z.string()).nonempty("اللون مطلوب"),
+    status: z.preprocess((val) => val === "true", z.boolean().default(true)),
     deletedImages: z.array(z.string()).optional(),
   })
   .superRefine((data, ctx) => {
@@ -43,8 +44,15 @@ const productSchema = z
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { title, price, description, hasDiscount, discountPrice, colors } =
-      productSchema.parse(req.body) as z.infer<typeof productSchema>;
+    const {
+      title,
+      price,
+      description,
+      hasDiscount,
+      discountPrice,
+      colors,
+      status,
+    } = productSchema.parse(req.body) as z.infer<typeof productSchema>;
 
     const imagesData = await Promise.all(
       (req.files as Express.Multer.File[]).map(async (file) => {
@@ -86,6 +94,7 @@ export const createProduct = async (req: Request, res: Response) => {
         images: {
           create: imagesData,
         },
+        status,
       },
     });
 
@@ -213,6 +222,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       discountPrice,
       colors,
       deletedImages,
+      status,
     } = productSchema.parse(req.body);
 
     if (deletedImages && deletedImages.length > 0) {
@@ -265,6 +275,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         title,
         price: parseFloat(price),
         description,
+        status,
         hasDiscount: hasDiscount,
         discountPrice: discountPrice ? parseFloat(discountPrice) : null,
         colors: {
@@ -326,6 +337,31 @@ export const getLastProducts = async (req: Request, res: Response) => {
 
     res.status(500).json({
       message: "حدث خطأ أثناء جلب المنتجات",
+    });
+  }
+};
+
+export const toggleProductStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+
+    await prisma.product.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        status: Boolean(req.body.status),
+      },
+    });
+
+    res.status(200).json({
+      message: "تم تبديل حالة المنتج بنجاح",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "حدث خطأ أثناء تبديل حالة المنتج",
     });
   }
 };

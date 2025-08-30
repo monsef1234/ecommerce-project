@@ -88,24 +88,46 @@
           {{ format(slotProps.data.createdAt, "dd/MM/yyyy, HH:mm") }}
         </template>
       </Column>
+      <Column field="status" header="Status" sortable>
+        <template #body="slotProps">
+          <Tag
+            :value="slotProps.data.status ? 'Available' : 'Not Available'"
+            :severity="slotProps.data.status ? 'success' : 'danger'"
+          />
+        </template>
+      </Column>
       <Column field="actions" header="Actions">
         <template #body="slotProps">
           <Button
+            v-tooltip="'تعديل'"
             icon="pi pi-pencil"
             class="p-button-warning"
             aria-label="Edit"
             variant="text"
             @click="editProduct(slotProps.data)"
-            :disabled="deleteLoading"
+            :disabled="deleteLoading || statusLoading"
           />
           <Button
+            v-tooltip="'تغيير الحالة'"
+            :icon="slotProps.data.status ? 'pi pi-times' : 'pi pi-check'"
+            :class="
+              slotProps.data.status ? 'p-button-danger' : 'p-button-success'
+            "
+            aria-label="Toggle Status"
+            variant="text"
+            @click="toggleStatus(slotProps.data)"
+            :loading="statusLoading"
+            :disabled="deleteLoading || statusLoading"
+          />
+          <Button
+            v-tooltip="'حذف'"
             icon="pi pi-trash"
             class="p-button-danger"
             aria-label="Delete"
             variant="text"
             @click="deleteProduct(slotProps.data)"
             :loading="deleteLoading"
-            :disabled="deleteLoading"
+            :disabled="deleteLoading || statusLoading"
           />
         </template>
       </Column>
@@ -138,6 +160,7 @@ export default defineComponent({
     return {
       loading: false,
       deleteLoading: false,
+      statusLoading: false,
       limit: 10,
       skip: 0,
 
@@ -230,6 +253,34 @@ export default defineComponent({
           life: 3000,
         });
         this.deleteLoading = false;
+      }
+    },
+
+    async toggleStatus(product: Product) {
+      this.statusLoading = true;
+      try {
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_URL}products/${product.id}/status`,
+          { status: !product.status }
+        );
+
+        product.status = !product.status;
+
+        this.$toast.add({
+          severity: "success",
+          summary: "نجاح",
+          detail: response.data.message,
+          life: 3000,
+        });
+      } catch (error: any) {
+        this.$toast.add({
+          severity: "error",
+          summary: "خطأ",
+          detail: error.response?.data?.message || "حدث خطأ",
+          life: 3000,
+        });
+      } finally {
+        this.statusLoading = false;
       }
     },
   },

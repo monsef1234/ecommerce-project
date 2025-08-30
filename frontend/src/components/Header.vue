@@ -25,7 +25,11 @@
 
     <OverlayBadge :value="storeCart.cart.length">
       <router-link to="/cart" @click="drawer = false">
-        <Button class="bg-transparent! border-none! p-0!" aria-label="Cart">
+        <Button
+          class="bg-transparent! border-none! p-0!"
+          aria-label="Cart"
+          v-tooltip="'السلة'"
+        >
           <template #icon>
             <i
               class="pi pi-shopping-cart text-black text-2xl! md:text-3xl!"
@@ -76,11 +80,11 @@ export default defineComponent({
 
       links: [
         {
-          name: "Home",
+          name: "الرئيسية",
           to: "/",
         },
         {
-          name: "Products",
+          name: "المنتجات",
           to: "/products",
         },
       ] as Link[],

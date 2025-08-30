@@ -15,6 +15,7 @@ export interface Product {
   hasDiscount: boolean;
   discountPrice?: number;
   description: string;
+  status: boolean;
   colors: Color[];
   images: Image[];
   createdAt?: string;

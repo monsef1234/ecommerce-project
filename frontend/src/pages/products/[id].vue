@@ -75,6 +75,7 @@
           :resolver="resolver"
           @submit="onFormSubmit"
           class="flex flex-col gap-4 w-full!"
+          v-if="product.status"
         >
           <div
             class="flex flex-col gap-6 bg-gray-50! p-6! rounded-lg! shadow-md!"
@@ -294,6 +295,10 @@
             :disabled="loadingSubmit"
           />
         </Form>
+
+        <h2 v-else class="text-2xl font-bold text-center mt-10 text-red-500">
+          غير متوفر
+        </h2>
       </div>
     </div>
 
@@ -356,6 +361,7 @@ export default defineComponent({
         title: "",
         price: 0,
         hasDiscount: false,
+        status: true,
         discountPrice: 0,
         description: "",
         images: [],

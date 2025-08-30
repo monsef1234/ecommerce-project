@@ -15,6 +15,7 @@ export const productSchema = z
       .nonempty("الوصف مطلوب")
       .min(10, "الوصف يجب أن يكون أكثر من 10 حروف"),
     discountPrice: z.string().optional(),
+    status: z.boolean().default(true),
     colors: z
       .array(
         z.object({

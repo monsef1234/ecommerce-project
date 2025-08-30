@@ -79,6 +79,9 @@
       <div class="flex items-center gap-4">
         <label for="hasDiscount" class="text-lg">هل هناك خصم؟</label>
         <ToggleSwitch name="hasDiscount" input-id="hasDiscount" />
+        <span class="text-lg">{{
+          $form.hasDiscount?.value ? "نعم" : "لا"
+        }}</span>
       </div>
 
       <div class="flex flex-col gap-1" v-if="$form.hasDiscount?.value">
@@ -96,6 +99,12 @@
           variant="simple"
           >{{ $form.discountPrice.error.message }}</Message
         >
+      </div>
+
+      <div class="flex items-center gap-4">
+        <label for="status" class="text-lg">هل المنتج متاح؟</label>
+        <ToggleSwitch name="status" input-id="status" />
+        <span class="text-lg">{{ $form.status?.value ? "نعم" : "لا" }}</span>
       </div>
 
       <FileUpload
@@ -181,6 +190,7 @@ export default defineComponent({
         title: "",
         price: "",
         hasDiscount: false,
+        status: true,
         discountPrice: "",
         description: "",
         colors: [],
@@ -218,6 +228,7 @@ export default defineComponent({
           formData.append("title", states.title.value);
           formData.append("price", states.price.value);
           formData.append("hasDiscount", String(states.hasDiscount.value));
+          formData.append("status", String(states.status.value));
           if (states.discountPrice?.value) {
             formData.append("discountPrice", states.discountPrice.value);
           }

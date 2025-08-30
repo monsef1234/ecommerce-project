@@ -4,7 +4,14 @@
     @click="$router.push(`/products/${product.id}`)"
   >
     <template #header>
-      <Image alt="product image" :src="product.images[0].url" />
+      <div class="relative">
+        <Image alt="product image" :src="product.images[0].url" />
+        <Tag
+          class="absolute bottom-0 left-0 px-2 py-1 rounded-none! rounded-tr-lg! text-md!"
+          :severity="product.status ? 'success' : 'danger'"
+          >{{ product.status ? "متوفر" : "غير متوفر" }}</Tag
+        >
+      </div>
     </template>
     <template #title>
       <span class="text-xl truncate block text-black">{{ product.title }}</span>
@@ -26,7 +33,7 @@
           >{{ currencyFormat(Number(product.discountPrice)!) }}</span
         >
         <Tag
-          class="absolute top-0 left-0 bg-red-500! text-white! px-2 py-1 rounded-none! rounded-br-lg!"
+          class="absolute top-0 left-0 bg-red-500! text-white! px-2 py-1 rounded-none! rounded-br-lg! text-md!"
           v-if="product.hasDiscount"
           >Discount</Tag
         >

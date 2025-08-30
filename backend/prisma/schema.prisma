@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,9 +12,10 @@ model Product {
   id        Int      @id @default(autoincrement())
   title      String
   price     Float
-  description String  
+  description String 
   hasDiscount Boolean @default(false)
   discountPrice Float?
+  status Boolean @default(true)
   images    Image[]
   colors    ProductColors[]
   orders    OrderProducts[]
@@ -69,6 +67,9 @@ model Setting {
   phone String
   phone2 String?
   phone3 String?
+  facebook String?
+  instagram String?
+  twitter String?
 
   @@map("settings")
 }
