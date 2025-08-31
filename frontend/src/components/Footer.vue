@@ -4,7 +4,7 @@
 
     <a
       class="text-lg font-bold my-6 block"
-      v-for="phone in phones.filter((p: string) => p)"
+      v-for="phone in phones.filter((p: string | undefined) => p)"
       :key="phone"
       :href="`tel:${phone}`"
     >
@@ -59,7 +59,7 @@ export default defineComponent({
         this.settingsStore.settings?.phone,
         this.settingsStore.settings?.phone2,
         this.settingsStore.settings?.phone3,
-      ];
+      ] as string[] | undefined[];
     },
   },
 

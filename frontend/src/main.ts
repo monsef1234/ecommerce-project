@@ -10,7 +10,7 @@ import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
 import Tooltip from "primevue/tooltip";
 import { createHead, VueHeadMixin } from "@unhead/vue/client";
-// import { inject } from "@vercel/analytics";
+import { inject } from "@vercel/analytics";
 
 import "primeicons/primeicons.css";
 import "./style/global.css";
@@ -76,7 +76,7 @@ const BlackWhitePreset = definePreset(Aura, {
   },
 });
 
-// inject();
+inject();
 
 const app = createApp(App);
 
