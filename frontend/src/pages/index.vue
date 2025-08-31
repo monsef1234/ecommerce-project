@@ -39,10 +39,15 @@
       <h1 class="text-2xl text-center font-bold">الاسئلة الشائعة</h1>
 
       <Accordion value="0" class="my-10">
-        <AccordionPanel v-for="tab in tabs" :key="tab.title" :value="tab.value">
-          <AccordionHeader>{{ tab.title }}</AccordionHeader>
+        <AccordionPanel
+          v-for="tab in faqTabs"
+          :key="tab.title"
+          :value="tab.value"
+          dir="rtl"
+        >
+          <AccordionHeader class="text-lg!">{{ tab.title }}</AccordionHeader>
           <AccordionContent>
-            <p class="m-0">{{ tab.content }}</p>
+            <p class="m-0! text-lg!" v-html="tab.content"></p>
           </AccordionContent>
         </AccordionPanel>
       </Accordion>
@@ -62,12 +67,28 @@ export default defineComponent({
 
   data() {
     return {
-      tabs: [
+      faqTabs: [
         {
           value: "0",
-          title: "الشحن والإرجاع",
-          content:
-            "بعد استلام طلبك، يُسمح لك بفتح المنتج والتحقق منه. إذا كان هناك أي مشكلة، يجب عليك إعادته إلى موظف التوصيل فورًا. ملاحظة: لا يُسمح لك بأخذ الطلب بعيدًا عن موظف التوصيل قبل دفع المبلغ. إذا كان هناك أي مشكلة في الحجم أو إذا كان المنتج به أي عيب، اتصل بنا وسنجري لك تبادلًا حيث سيأتي موظف التوصيل إليك ويوصل لك الطلب الجديد ويأخذ المنتج التالف. ملاحظة: إذا كان الخطأ من فريقنا أو كان المنتج به عيب، فسيكون شحن التبادل مجانيًا. ملاحظة: إذا أصر العميل على حجم معين وكان لا يتناسب مع مقاسه، فيتم دفع تكلفة الشحن من قبل العميل.",
+          title: "كيفية الطلب",
+          content: `
+      <p>إذا أردت <strong>منتجًا واحدًا فقط</strong>: اذهب إلى صفحة المنتج واملأ نموذج الطلب الموجود هناك.</p>
+      <p>إذا أردت <strong>عدة منتجات</strong>: أضف المنتجات إلى <strong>عربة التسوق (السلة)</strong> ثم اذهب إلى صفحة السلة واملأ نموذج الطلب مرة واحدة لجميع المنتجات.</p>
+    `,
+        },
+        {
+          value: "1",
+          title: "دفع عن الاستلام",
+          content: `
+      <p>يعني أنك تدفع عند استلام المنتج وبعد رؤية المنتج</p>
+    `,
+        },
+        {
+          value: "2",
+          title: "مدة التوصيل",
+          content: `
+      <p>التوصيل يستغرق من 24 الى 72 ساعة الى باب المنزل او نقطة التوصيل حسب اختيارك</p>
+    `,
         },
       ],
 
@@ -96,6 +117,7 @@ export default defineComponent({
 
   setup() {
     const storeProduct = useProductStore();
+
     return {
       storeProduct,
     };

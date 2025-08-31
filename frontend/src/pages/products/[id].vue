@@ -472,6 +472,7 @@ export default defineComponent({
         );
 
         this.product = response.data?.product;
+        this.storeProduct.product = response.data?.product;
         this.selectedColor = this.product.colors[0].id;
       } catch (error: any) {
         this.$toast.add({
@@ -526,8 +527,34 @@ export default defineComponent({
     };
   },
 
-  mounted() {
-    this.fetchProductById();
+  async mounted() {
+    await this.fetchProductById();
+  },
+
+  head() {
+    return {
+      title: computed(() =>
+        this.loading ? "جاري التحميل..." : `${this.product.title} | MySouqDz`
+      ),
+      meta: [
+        { name: "description", content: this.product?.description },
+        { name: "keywords", content: this.product?.title },
+        { name: "author", content: "MySouqDz" },
+        { name: "application-name", content: "MySouqDz" },
+        { name: "robots", content: "index, follow" },
+        { rel: "canonical", href: "https://mysouqdz.store" },
+        { property: "og:type", content: "website" },
+        { property: "og:title", content: this.product?.title },
+        { property: "og:description", content: this.product?.description },
+        { property: "og:image", content: this.product?.images[0]?.url },
+        { property: "og:url", content: "https://mysouqdz.store" },
+        { property: "og:site_name", content: "MySouqDz" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: this.product?.title },
+        { name: "twitter:description", content: this.product?.description },
+        { name: "twitter:image", content: this.product?.images[0]?.url },
+      ],
+    };
   },
 });
 </script>

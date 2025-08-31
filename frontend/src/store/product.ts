@@ -4,6 +4,17 @@ import type { Product } from "@/types/Product";
 export const useProductStore = defineStore("product", {
   state: () => ({
     products: [] as Product[],
+    product: {
+      id: 0,
+      title: "",
+      price: 0,
+      hasDiscount: false,
+      status: true,
+      discountPrice: 0,
+      description: "",
+      images: [],
+      colors: [],
+    } as Product,
     total: 0,
   }),
 

@@ -5,4 +5,7 @@ export interface Setting {
   phone: string;
   phone2?: string;
   phone3?: string;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
 }

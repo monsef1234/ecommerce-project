@@ -1,43 +1,47 @@
 <template>
   <header
-    class="p-4 fixed top-0 left-0 z-[10] shadow-[0_2px_10px_0_rgba(0,0,0,.1)] w-full bg-white flex justify-between items-center"
+    class="fixed top-0 left-0 z-[10] shadow-[0_2px_10px_0_rgba(0,0,0,.1)] w-full bg-white"
   >
-    <Button
-      class="bg-transparent! border-none!"
-      aria-label="Menu"
-      @click="drawer = !drawer"
-    >
-      <template #icon>
-        <i class="pi pi-bars text-black text-2xl! md:text-3xl!"></i>
-      </template>
-    </Button>
+    <div class="flex justify-between items-center p-4">
+      <Button
+        class="bg-transparent! border-none!"
+        aria-label="Menu"
+        @click="drawer = !drawer"
+      >
+        <template #icon>
+          <i class="pi pi-bars text-black text-2xl! md:text-3xl!"></i>
+        </template>
+      </Button>
 
-    <router-link to="/">
-      <Image
-        :src="
-          storeSettings.logoUrl ||
-          'https://dummyimage.com/150x50/cccccc/000000&text=Logo'
-        "
-        :alt="storeSettings.settings.storeName"
-        width="150"
-      />
-    </router-link>
-
-    <OverlayBadge :value="storeCart.cart.length">
-      <router-link to="/cart" @click="drawer = false">
-        <Button
-          class="bg-transparent! border-none! p-0!"
-          aria-label="Cart"
-          v-tooltip="'السلة'"
-        >
-          <template #icon>
-            <i
-              class="pi pi-shopping-cart text-black text-2xl! md:text-3xl!"
-            ></i>
-          </template>
-        </Button>
+      <router-link to="/" v-if="storeSettings.logoUrl">
+        <Image
+          :src="storeSettings.logoUrl"
+          :alt="storeSettings.settings.storeName"
+          width="150"
+        />
       </router-link>
-    </OverlayBadge>
+
+      <OverlayBadge :value="storeCart.cart.length">
+        <router-link to="/cart" @click="drawer = false">
+          <Button
+            class="bg-transparent! border-none! p-0!"
+            aria-label="Cart"
+            v-tooltip="'السلة'"
+          >
+            <template #icon>
+              <i
+                class="pi pi-shopping-cart text-black text-2xl! md:text-3xl!"
+              ></i>
+            </template>
+          </Button>
+        </router-link>
+      </OverlayBadge>
+    </div>
+    <div class="bg-black text-white p-4 text-center">
+      <h2 class="text-md md:text-lg font-bold">
+        🔥 الكمية محدودة سارعوا في الطلب الآن 🔥
+      </h2>
+    </div>
 
     <Drawer
       v-model:visible="drawer"

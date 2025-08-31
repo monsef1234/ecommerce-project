@@ -16,6 +16,9 @@ export const settingsSchema = z.object({
       message: "رقم الهاتف غير صحيح",
     })
     .optional(),
+  facebook: z.string().optional(),
+  instagram: z.string().optional(),
+  twitter: z.string().optional(),
 });
 
 export type SettingsSchemaType = z.infer<typeof settingsSchema>;

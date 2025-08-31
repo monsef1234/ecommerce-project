@@ -115,5 +115,29 @@ export default defineComponent({
     await this.getProducts();
     this.loading = false;
   },
+
+  head() {
+    return {
+      title: "جميع المنتوجات | MySouqDz",
+      meta: [
+        { name: "description", content: "جميع المنتوجات" },
+        { name: "keywords", content: "منتجات" },
+        { name: "author", content: "MySouqDz" },
+        { name: "application-name", content: "MySouqDz" },
+        { name: "robots", content: "index, follow" },
+        { rel: "canonical", href: "https://mysouqdz.store" },
+        { property: "og:type", content: "website" },
+        { property: "og:title", content: "جميع المنتوجات" },
+        { property: "og:description", content: "جميع المنتوجات" },
+        { property: "og:image", content: "https://mysouqdz.store/logo.png" },
+        { property: "og:url", content: "https://mysouqdz.store" },
+        { property: "og:site_name", content: "MySouqDz" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: "جميع المنتوجات" },
+        { name: "twitter:description", content: "جميع المنتوجات" },
+        { name: "twitter:image", content: "https://mysouqdz.store/logo.png" },
+      ],
+    };
+  },
 });
 </script>

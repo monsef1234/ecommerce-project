@@ -24,6 +24,9 @@ const settingsSchema = z.object({
       message: "رقم الهاتف غير صحيح",
     })
     .optional(),
+  facebook: z.string().optional(),
+  instagram: z.string().optional(),
+  twitter: z.string().optional(),
 });
 
 export const getSetting = async (req: Request, res: Response) => {
@@ -43,9 +46,8 @@ export const getSetting = async (req: Request, res: Response) => {
 
 export const updateSetting = async (req: Request, res: Response) => {
   try {
-    const { storeName, phone1, phone2, phone3 } = settingsSchema.parse(
-      req.body
-    ) as z.infer<typeof settingsSchema>;
+    const { storeName, phone1, phone2, phone3, facebook, instagram, twitter } =
+      settingsSchema.parse(req.body) as z.infer<typeof settingsSchema>;
     const logo = req.file as Express.Multer.File;
 
     let publicUrl = "";
@@ -53,8 +55,8 @@ export const updateSetting = async (req: Request, res: Response) => {
     if (logo) {
       const Buffer = await sharp(logo.buffer)
         .resize(150, 50, {
-          fit: "cover",
-          position: "center",
+          fit: "contain",
+          background: "transparent",
         })
         .webp({ quality: 70 })
         .toBuffer();
@@ -83,6 +85,9 @@ export const updateSetting = async (req: Request, res: Response) => {
         phone: phone1,
         phone2: phone2 || null,
         phone3: phone3 || null,
+        facebook: facebook || null,
+        instagram: instagram || null,
+        twitter: twitter || null,
         ...(publicUrl.trim() !== "" && { logoUrl: publicUrl }),
       },
     });

@@ -79,6 +79,27 @@
         >
       </div>
 
+      <div class="flex flex-col gap-1">
+        <InputText name="facebook" type="text" placeholder="facebook" fluid />
+        <Message size="small" severity="secondary" variant="simple"
+          >مثال : https://www.facebook.com/</Message
+        >
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <InputText name="instagram" type="text" placeholder="instagram" fluid />
+        <Message size="small" severity="secondary" variant="simple"
+          >مثال : https://www.instagram.com/</Message
+        >
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <InputText name="twitter" type="text" placeholder="twitter" fluid />
+        <Message size="small" severity="secondary" variant="simple"
+          >مثال : https://www.twitter.com/</Message
+        >
+      </div>
+
       <FileUpload
         mode="basic"
         @select="onFileSelect"
@@ -163,14 +184,10 @@ export default defineComponent({
         phone1: form.phone1?.value,
         phone2: form.phone2?.value,
         phone3: form.phone3?.value,
+        facebook: form.facebook?.value,
+        instagram: form.instagram?.value,
+        twitter: form.twitter?.value,
       } as SettingsSchemaType;
-
-      if (form.phone2?.value) {
-        filterFormValues.phone2 = form.phone2?.value;
-      }
-      if (form.phone3?.value) {
-        filterFormValues.phone3 = form.phone3?.value;
-      }
 
       return (
         isEqual(filterFormValues, this.settingsStore.initialValues) ||
@@ -218,6 +235,15 @@ export default defineComponent({
           }
           if (this.file) {
             formData.append("logo", this.file);
+          }
+          if (states.facebook.value) {
+            formData.append("facebook", states.facebook.value);
+          }
+          if (states.instagram.value) {
+            formData.append("instagram", states.instagram.value);
+          }
+          if (states.twitter.value) {
+            formData.append("twitter", states.twitter.value);
           }
 
           const response = await axios.put(

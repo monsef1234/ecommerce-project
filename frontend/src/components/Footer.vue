@@ -1,37 +1,43 @@
 <template>
   <footer class="bg-black text-white py-10 text-center">
     <h3 class="text-xl">اتصلو بنا على</h3>
-    <span
+
+    <a
       class="text-lg font-bold my-6 block"
-      v-for="phone in phones.filter((p) => p)"
+      v-for="phone in phones.filter((p: string) => p)"
       :key="phone"
+      :href="`tel:${phone}`"
     >
       {{ phone }}
-    </span>
+    </a>
+
     <div class="social-media">
       <Button
+        v-if="settingsStore.settings?.facebook"
         icon="pi pi-facebook"
         aria-label="Facebook"
         as="a"
-        href="https://www.facebook.com/"
+        :href="settingsStore.settings?.facebook"
         target="_blank"
         rel="noopener"
         size="large"
       />
       <Button
-        icon="pi pi-twitter"
-        aria-label="Twitter"
-        as="a"
-        href="https://twitter.com/"
-        target="_blank"
-        rel="noopener"
-        size="large"
-      />
-      <Button
+        v-if="settingsStore.settings?.instagram"
         icon="pi pi-instagram"
         aria-label="Instagram"
         as="a"
-        href="https://www.instagram.com/"
+        :href="settingsStore.settings?.instagram"
+        target="_blank"
+        rel="noopener"
+        size="large"
+      />
+      <Button
+        v-if="settingsStore.settings?.twitter"
+        icon="pi pi-twitter"
+        aria-label="Twitter"
+        as="a"
+        :href="settingsStore.settings?.twitter"
         target="_blank"
         rel="noopener"
         size="large"

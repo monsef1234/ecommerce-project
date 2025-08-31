@@ -12,6 +12,9 @@ export const useSettingsStore = defineStore("settings", {
       phone: "",
       phone2: "",
       phone3: "",
+      facebook: "",
+      instagram: "",
+      twitter: "",
     } as Setting,
 
     initialValues: {
@@ -20,6 +23,9 @@ export const useSettingsStore = defineStore("settings", {
       phone1: "",
       phone2: "",
       phone3: "",
+      facebook: "",
+      instagram: "",
+      twitter: "",
     } as SettingsSchemaType,
 
     logoUrl: "",
@@ -51,10 +57,12 @@ export const useSettingsStore = defineStore("settings", {
         id: this.settings.id,
         storeName: this.settings.storeName,
         phone1: this.settings.phone,
-        phone2:
-          this.settings.phone2 === null ? undefined : this.settings.phone2,
-        phone3:
-          this.settings.phone3 === null ? undefined : this.settings.phone3,
+        phone2: this.settings.phone2 === null ? "" : this.settings.phone2,
+        phone3: this.settings.phone3 === null ? "" : this.settings.phone3,
+        facebook: this.settings.facebook === null ? "" : this.settings.facebook,
+        instagram:
+          this.settings.instagram === null ? "" : this.settings.instagram,
+        twitter: this.settings.twitter === null ? "" : this.settings.twitter,
       };
 
       this.logoUrl = this.settings.logoUrl;

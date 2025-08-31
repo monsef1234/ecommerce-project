@@ -1,30 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ecommerce</title>
+
+    <!-- Title & Description -->
+    <title>My SouqDz</title>
     <meta
       name="description"
-      content="Modern ecommerce storefront built with Vue, Vite, TypeScript, PrimeVue, and Tailwind."
+      content="My SouqDz - اكتشف أفضل فرش أرضية السيارات (Car Floor Mats) وإكسسوارات السيارات في الجزائر. حماية مثالية لسيارتك من الغبار والماء والأوساخ مع طلب سهل عبر الفورم وتوصيل محلي سريع."
     />
-    <meta name="application-name" content="Ecommerce" />
+    <meta
+      name="keywords"
+      content="فرش أرضية سيارات الجزائر, car mats Algeria, tapis de voiture Algérie, اكسسوارات سيارات الجزائر, My SouqDz"
+    />
+    <meta name="author" content="My SouqDz" />
+    <meta name="application-name" content="My SouqDz" />
 
+    <!-- Robots & Canonical -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://mysouqdz.store" />
+
+    <!-- Open Graph (Facebook / WhatsApp / LinkedIn) -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Ecommerce" />
+    <meta
+      property="og:title"
+      content="My SouqDz - فرش أرضية السيارات وإكسسوارات في الجزائر"
+    />
     <meta
       property="og:description"
-      content="Discover and shop products with a fast, modern Vue storefront."
+      content="اكتشف أفضل فرش أرضية السيارات (Car Floor Mats) في الجزائر مع My SouqDz. اطلب بسهولة عبر الفورم واستفد من خدمة توصيل محلية سريعة."
     />
-    <meta property="og:image" content="/vite.svg" />
-    <meta property="og:url" content="/" />
+    <meta property="og:image" content="https://mysouqdz.store/logo.png" />
+    <meta property="og:url" content="https://mysouqdz.store" />
+    <meta property="og:site_name" content="My SouqDz" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="My SouqDz - فرش أرضية السيارات وإكسسوارات في الجزائر"
+    />
+    <meta
+      name="twitter:description"
+      content="تسوق فرش أرضية سيارات وإكسسوارات متنوعة في الجزائر عبر My SouqDz. طلب سريع وتوصيل محلي مضمون."
+    />
+    <meta name="twitter:image" content="https://mysouqdz.store/logo.png" />
+
+    <!-- Structured Data (JSON-LD for Google SEO) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "My SouqDz",
+        "url": "https://mysouqdz.store",
+        "logo": "https://mysouqdz.store/logo.png",
+        "description": "My SouqDz - سوق سيارات وإكسسوارات في الجزائر مع طلب سهل وتوصيل محلي.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "DZ"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
     <noscript>
-      This application requires JavaScript to run. Please enable JavaScript in
-      your browser.
+      هذا الموقع يحتاج جافاسكريبت ليعمل. الرجاء تفعيل JavaScript في متصفحك.
     </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
