@@ -374,8 +374,8 @@ export default defineComponent({
         this.previewedImages.push(imageEntry);
 
         const compressedFile = await imageCompression(file, {
-          maxSizeMB: 0.5,
-          maxWidthOrHeight: 1024,
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1500,
           onProgress: (progress) => {
             imageEntry.progress = progress;
           },
