@@ -5,22 +5,53 @@
       v-if="!loading && product.id"
     >
       <div class="col-span-2">
-        <Galleria
-          :value="product.images"
-          :responsiveOptions="responsiveOptions"
-          class="w-full"
+        <swiper
+          @swiper="setSwiper"
+          :spaceBetween="10"
+          :navigation="false"
+          :autoplay="{
+            delay: 2000,
+            disableOnInteraction: false,
+          }"
+          :thumbs="{ swiper: thumbsSwiper }"
+          :modules="modules"
+          class="mb-4"
         >
-          <template #item="slotProps">
-            <Image :src="slotProps.item.url" :alt="slotProps.item.alt" />
-          </template>
-          <template #thumbnail="slotProps">
-            <Image
-              :src="slotProps.item.url"
-              :alt="slotProps.item.alt"
-              class="md:w-[150px] thumbnail-item"
-            />
-          </template>
-        </Galleria>
+          <swiper-slide v-for="image in product.images" :key="image.id">
+            <Image :src="image.url" :alt="image.id.toString()" />
+          </swiper-slide>
+        </swiper>
+
+        <div class="px-10 relative">
+          <swiper
+            @swiper="setThumbsSwiper"
+            :spaceBetween="10"
+            :slidesPerView="3"
+            :navigation="false"
+            :freeMode="true"
+            :watchSlidesProgress="true"
+            :modules="modules"
+          >
+            <swiper-slide v-for="image in product.images" :key="image.id">
+              <Image :src="image.url" :alt="image.id.toString()" />
+            </swiper-slide>
+          </swiper>
+
+          <Button
+            icon="pi pi-chevron-left"
+            class="absolute! left-0! top-1/2! -translate-y-1/2!"
+            size="large"
+            @click="slidePrev"
+            variant="text"
+          />
+          <Button
+            icon="pi pi-chevron-right"
+            class="absolute! right-0! top-1/2! -translate-y-1/2!"
+            size="large"
+            @click="slideNext"
+            variant="text"
+          />
+        </div>
       </div>
 
       <div>
@@ -335,6 +366,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import axios from "axios";
+import { Form, type FormSubmitEvent } from "@primevue/forms";
+import { FreeMode, Navigation, Thumbs, Autoplay } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper/types";
 
 import { useProductStore } from "@/store/product";
 import { useCartStore } from "@/store/cart";
@@ -345,14 +381,18 @@ import {
   checkoutSchema,
   type CheckoutSchemaType,
 } from "@/schemas/checkout.schema";
-import { Form, type FormSubmitEvent } from "@primevue/forms";
+
 import zrExpress from "@/zr-express.json";
 
 import check from "@/assets/images/check.png";
-import axios from "axios";
 
 export default defineComponent({
   name: "Product",
+
+  components: {
+    Swiper,
+    SwiperSlide,
+  },
 
   data() {
     return {
@@ -378,6 +418,9 @@ export default defineComponent({
       } as CheckoutSchemaType,
 
       selectedColor: 0 as number,
+      thumbsSwiper: null as SwiperType | null,
+
+      swiper: null as SwiperType | null,
 
       visible: false,
 
@@ -486,6 +529,14 @@ export default defineComponent({
       }
     },
 
+    slidePrev() {
+      this.swiper?.slidePrev();
+    },
+
+    slideNext() {
+      this.swiper?.slideNext();
+    },
+
     getTotalPrice(product: Product, form: any) {
       return (
         (product.hasDiscount
@@ -511,6 +562,16 @@ export default defineComponent({
         life: 2500,
       });
     },
+
+    setThumbsSwiper(swiper: SwiperType) {
+      this.thumbsSwiper = swiper;
+      console.log(this.thumbsSwiper);
+    },
+
+    setSwiper(swiper: SwiperType) {
+      this.swiper = swiper;
+      console.log(this.swiper);
+    },
   },
 
   setup() {
@@ -522,6 +583,7 @@ export default defineComponent({
       storeCart,
       currencyFormat,
       zrExpress,
+      modules: [FreeMode, Navigation, Thumbs, Autoplay],
 
       check,
     };

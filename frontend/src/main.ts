@@ -13,6 +13,10 @@ import { createHead, VueHeadMixin } from "@unhead/vue/client";
 import { inject } from "@vercel/analytics";
 
 import "primeicons/primeicons.css";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
 import "./style/global.css";
 
 const BlackWhitePreset = definePreset(Aura, {

@@ -63,3 +63,8 @@
     left: 65% !important;
   }
 }
+
+.p-galleria-thumbnails {
+  touch-action: pan-y !important; /* اسمح فقط بسكرول عمودي */
+  -ms-touch-action: pan-y !important; /* دعم قديم للـ IE */
+}
