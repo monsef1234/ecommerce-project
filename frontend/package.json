@@ -1,8 +1,8 @@
 {
-  "name": "ecommerce-frontend",
+  "name": "mySouqDZ-frontend",
   "version": "1.0.0",
   "private": true,
-  "description": "Frontend app for an e-commerce project built with Vue 3, Vite, Pinia, Supabase, and Tailwind CSS.",
+  "description": "Frontend of MySouqDZ E-commerce app built with Vue 3, Vite, Pinia, Supabase, and Tailwind CSS.",
   "author": "Monsef",
   "license": "MIT",
   "type": "module",

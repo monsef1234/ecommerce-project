@@ -34,7 +34,7 @@
           v-if="product.hasDiscount"
           class="flex items-center gap-4 flex-wrap mb-6"
         >
-          <p class="text-2xl font-bold line-through text-gray-500">
+          <p class="text-xl font-bold line-through text-gray-500">
             {{ currencyFormat(Number(product.price)) }}
           </p>
           <p class="text-2xl font-bold text-green-500">

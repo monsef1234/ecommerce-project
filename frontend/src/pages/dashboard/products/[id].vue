@@ -153,7 +153,7 @@
 
           <Button
             icon="pi pi-times"
-            @click="removeImage(index)"
+            @click="removeImage(index, image)"
             variant="outlined"
             severity="danger"
           />
@@ -387,9 +387,13 @@ export default defineComponent({
       });
     },
 
-    removeImage(index: number) {
+    removeImage(index: number, image: { url: string }) {
       if (!this.previewedImages[index].url.startsWith("data:image")) {
-        this.deletedImages.push({ id: this.product?.images[index]?.id || 0 });
+        const findId = this.product?.images.find(
+          (img) => img.url === image.url
+        )?.id;
+
+        this.deletedImages.push({ id: findId! });
       } else {
         const newIdx = index - (this.product?.images?.length ?? 0);
         if (newIdx >= 0 && newIdx < this.newImages.length) {
@@ -418,9 +422,6 @@ export default defineComponent({
         description: form.description?.value,
         colors: form.colors?.value,
       } as ProductSchemaType;
-
-      console.log(filterFormValues);
-      console.log(this.initialValues);
 
       return isEqual(
         this.normalizeProduct(filterFormValues),

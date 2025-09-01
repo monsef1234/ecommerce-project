@@ -14,7 +14,7 @@
       </div>
     </template>
     <template #title>
-      <span class="text-xl truncate block text-black">{{ product.title }}</span>
+      <span class="text-xl block text-black">{{ product.title }}</span>
     </template>
     <template #content>
       <p class="m-0 flex items-center flex-wrap gap-2 sm:gap-4">
@@ -28,14 +28,14 @@
           >{{ currencyFormat(Number(product.price)) }}</span
         >
         <span
-          class="font-bold text-lg text-green-500"
+          class="font-bold text-xl text-green-500"
           v-if="product.hasDiscount"
           >{{ currencyFormat(Number(product.discountPrice)!) }}</span
         >
         <Tag
           class="absolute top-0 left-0 bg-red-500! text-white! px-2 py-1 rounded-none! rounded-br-lg! text-md!"
           v-if="product.hasDiscount"
-          >Discount</Tag
+          >تخفيض</Tag
         >
       </p>
     </template>

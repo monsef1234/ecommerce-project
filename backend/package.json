@@ -1,8 +1,8 @@
 {
   "main": "index.js",
-  "name": "ecommerce-backend",
+  "name": "mySouqDZ-backend",
   "version": "1.0.0",
-  "description": "Backend API for an e-commerce app built with Express, Prisma, Supabase, and TypeScript.",
+  "description": "Backend API for MySouqDZ E-commerce app built with Express, Prisma, Supabase, and TypeScript.",
   "author": "Monsef",
   "license": "MIT",
   "scripts": {

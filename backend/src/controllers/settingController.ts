@@ -58,7 +58,7 @@ export const updateSetting = async (req: Request, res: Response) => {
           fit: "contain",
           background: "transparent",
         })
-        .webp({ quality: 70 })
+        .webp()
         .toBuffer();
 
       const { data, error } = await supabase.storage
