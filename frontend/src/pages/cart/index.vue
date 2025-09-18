@@ -152,7 +152,10 @@
           </h3>
 
           <div class="flex flex-col gap-4">
-            <div class="flex items-center justify-between">
+            <div
+              class="flex items-center justify-between"
+              v-if="$form.state?.value?.home"
+            >
               <div class="flex items-center gap-2">
                 <RadioButton inputId="home" name="delivery" value="home" />
                 <label for="home" class="text-lg">🏠 توصيل الى المنزل</label>
@@ -161,7 +164,10 @@
                 currencyFormat($form.state?.value?.home)
               }}</span>
             </div>
-            <div class="flex items-center justify-between">
+            <div
+              class="flex items-center justify-between"
+              v-if="$form.state?.value?.point"
+            >
               <div class="flex items-center gap-2">
                 <RadioButton inputId="point" name="delivery" value="point" />
                 <label for="point" class="text-lg"
@@ -174,11 +180,22 @@
               }}</span>
             </div>
           </div>
+
+          <p
+            v-if="!$form.state?.value?.home && !$form.state?.value?.point"
+            class="text-red-500"
+          >
+            لا يوجد توصيل الى هذه الولاية
+          </p>
         </div>
 
         <div
           class="bg-gray-50! p-6! rounded-lg! shadow-md!"
-          v-if="$form.state?.value && $form.delivery?.value"
+          v-if="
+            $form.state?.value &&
+            $form.delivery?.value &&
+            ($form.state?.value?.home || $form.state?.value?.point)
+          "
         >
           <div class="flex items-center justify-between">
             <h3 class="flex items-center gap-2 text-lg">
@@ -227,7 +244,9 @@
           severity="success"
           label="اشتري الآن"
           size="large"
-          :disabled="loading"
+          :disabled="
+            loading || (!$form.state?.value?.home && !$form.state?.value?.point)
+          "
           :loading="loading"
         />
       </Form>
