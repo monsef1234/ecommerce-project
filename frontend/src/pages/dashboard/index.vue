@@ -59,12 +59,8 @@
         ></ProgressBar>
       </template>
 
-      
       <template #empty>
-        <div
-          class="text-center"
-          v-if="!loading && !orders.length"
-        >
+        <div class="text-center" v-if="!loading && !orders.length">
           <p class="text-lg font-bold">لا يوجد طلبات</p>
         </div>
       </template>
@@ -84,9 +80,9 @@
           {{ slotProps.data.state.state }}
         </template>
       </Column>
-      <Column field="address" header="Address" sortable>
+      <Column field="district" header="District" sortable>
         <template #body="slotProps">
-          {{ slotProps.data.address }}
+          {{ slotProps.data.district }}
         </template>
       </Column>
       <Column field="delivery" header="Delivery" sortable>
@@ -249,7 +245,7 @@ export default defineComponent({
     async deleteOrder(id: number) {
       try {
         await axios.delete(`${import.meta.env.VITE_API_URL}orders/${id}`);
-        
+
         this.ordersCount--;
         this.totalPrice -= this.orders.find((p) => p.id === id)?.total || 0;
         this.deliveredOrdersCount -=
