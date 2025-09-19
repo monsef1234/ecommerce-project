@@ -1,33 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Color` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Image` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Product` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `_ProductColors` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "public"."Image" DROP CONSTRAINT "Image_productId_fkey";
-
--- DropForeignKey
-ALTER TABLE "public"."_ProductColors" DROP CONSTRAINT "_ProductColors_A_fkey";
-
--- DropForeignKey
-ALTER TABLE "public"."_ProductColors" DROP CONSTRAINT "_ProductColors_B_fkey";
-
--- DropTable
-DROP TABLE "public"."Color";
-
--- DropTable
-DROP TABLE "public"."Image";
-
--- DropTable
-DROP TABLE "public"."Product";
-
--- DropTable
-DROP TABLE "public"."_ProductColors";
-
 -- CreateTable
 CREATE TABLE "public"."products" (
     "id" SERIAL NOT NULL,
@@ -36,6 +6,7 @@ CREATE TABLE "public"."products" (
     "description" TEXT NOT NULL,
     "hasDiscount" BOOLEAN NOT NULL DEFAULT false,
     "discountPrice" DOUBLE PRECISION,
+    "status" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -72,6 +43,49 @@ CREATE TABLE "public"."product_colors" (
     CONSTRAINT "product_colors_pkey" PRIMARY KEY ("productId","colorId")
 );
 
+-- CreateTable
+CREATE TABLE "public"."settings" (
+    "id" SERIAL NOT NULL,
+    "storeName" TEXT NOT NULL,
+    "logoUrl" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "phone2" TEXT,
+    "phone3" TEXT,
+    "facebook" TEXT,
+    "instagram" TEXT,
+    "twitter" TEXT,
+
+    CONSTRAINT "settings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."orders" (
+    "id" SERIAL NOT NULL,
+    "fullname" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "address" TEXT,
+    "delivery" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'not_delivered',
+    "state" JSONB NOT NULL,
+    "district" TEXT NOT NULL,
+    "total" DOUBLE PRECISION NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "orders_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."order_products" (
+    "orderId" INTEGER NOT NULL,
+    "productId" INTEGER NOT NULL,
+    "colorId" INTEGER NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "order_products_pkey" PRIMARY KEY ("orderId","productId","colorId")
+);
+
 -- AddForeignKey
 ALTER TABLE "public"."images" ADD CONSTRAINT "images_productId_fkey" FOREIGN KEY ("productId") REFERENCES "public"."products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -80,3 +94,12 @@ ALTER TABLE "public"."product_colors" ADD CONSTRAINT "product_colors_productId_f
 
 -- AddForeignKey
 ALTER TABLE "public"."product_colors" ADD CONSTRAINT "product_colors_colorId_fkey" FOREIGN KEY ("colorId") REFERENCES "public"."colors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."order_products" ADD CONSTRAINT "order_products_productId_fkey" FOREIGN KEY ("productId") REFERENCES "public"."products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."order_products" ADD CONSTRAINT "order_products_colorId_fkey" FOREIGN KEY ("colorId") REFERENCES "public"."colors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."order_products" ADD CONSTRAINT "order_products_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "public"."orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
