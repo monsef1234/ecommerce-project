@@ -37,7 +37,7 @@ export const createOrder = async (req: Request, res: Response) => {
       data: {
         fullname,
         phone,
-        address: address ?? null,
+        address: address || null,
         delivery,
         state,
         total,
