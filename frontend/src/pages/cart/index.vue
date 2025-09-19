@@ -119,6 +119,29 @@
             >
           </div>
 
+          <div
+            class="flex flex-col gap-1"
+            v-if="$form.state?.value?.districts.length > 0"
+          >
+            <Select
+              name="district"
+              :options="$form.state?.value?.districts"
+              fluid
+              size="large"
+              placeholder="الدائرة"
+              scrollHeight="18rem"
+              :disabled="!$form.state?.value"
+            />
+
+            <Message
+              v-if="$form.district?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+              >{{ $form.district.error.message }}</Message
+            >
+          </div>
+
           <div class="flex flex-col gap-1">
             <FloatLabel variant="in">
               <InputText
@@ -311,6 +334,7 @@ export default defineComponent({
         state: null,
         quantity: 1,
         delivery: "home" as "home" | "point",
+        district: "",
       },
 
       responsiveOptions: [
@@ -347,6 +371,7 @@ export default defineComponent({
             fullname: states.fullname.value,
             phone: states.phone.value,
             address: states.address.value,
+            district: states.district.value,
             state: {
               id: states.state.value.id,
               state: states.state.value.wilaya,

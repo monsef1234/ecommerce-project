@@ -50,6 +50,12 @@ export const sendOrderEmail = async (order: any) => {
           }</td>
         </tr>
         <tr>
+          <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">الدائرة</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            order.district
+          }</td>
+        </tr>
+        <tr>
           <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">العنوان</td>
           <td style="border: 1px solid #ddd; padding: 8px;">${
             order.address

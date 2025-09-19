@@ -12,9 +12,10 @@ const orderSchema = z.object({
     .string()
     .nonempty("رقم الهاتف مطلوب")
     .regex(/^0[567]\d{8}$/, "رقم الهاتف غير صحيح"),
-  address: z.string().nonempty("العنوان مطلوب"),
+  address: z.string().optional(),
   delivery: z.enum(["home", "point"]),
   total: z.number().positive("الإجمالي مطلوب."),
+  district: z.string().nonempty("الدائرة مطلوبة."),
   state: z
     .object({
       id: z.number(),
@@ -27,7 +28,7 @@ const orderSchema = z.object({
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const { fullname, phone, address, delivery, state, total } =
+    const { fullname, phone, address, delivery, state, total, district } =
       orderSchema.parse(req.body) as z.infer<typeof orderSchema>;
 
     const { products } = req.body as { products: any[] };
@@ -36,10 +37,11 @@ export const createOrder = async (req: Request, res: Response) => {
       data: {
         fullname,
         phone,
-        address,
+        address: address || null,
         delivery,
         state,
         total,
+        district,
         products: {
           create: products.map(
             (product: {
@@ -58,7 +60,15 @@ export const createOrder = async (req: Request, res: Response) => {
       },
     });
 
-    await sendOrderEmail({ fullname, phone, address, state, total, products });
+    await sendOrderEmail({
+      fullname,
+      phone,
+      address,
+      state,
+      total,
+      products,
+      district,
+    });
 
     res.status(201).json({
       message: "تم اضافة الطلب بنجاح",

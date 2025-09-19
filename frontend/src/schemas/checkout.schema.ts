@@ -9,9 +9,10 @@ export const checkoutSchema = z.object({
     .string()
     .nonempty("رقم الهاتف مطلوب")
     .regex(/^0[567]\d{8}$/, "رقم الهاتف غير صحيح"),
-  address: z.string().nonempty("العنوان مطلوب"),
+  address: z.string().optional(),
   quantity: z.number().positive("الكمية مطلوبة."),
   delivery: z.enum(["home", "point"]),
+  district: z.string().nonempty("المنطقة مطلوبة."),
   state: z
     .object({
       id: z.number(),
